@@ -12,13 +12,13 @@ SOURCES = \
     btcore.cpp \
     main.cpp \
     tablemodel.cpp \
-    wake_comm.cpp
+    wakecore.cpp
 
 HEADERS = \
     btcore.h \
     tablemodel.h \
     wake.h \
-    wake_comm.h
+    wakecore.h
 
 RESOURCES += qml.qrc
 
