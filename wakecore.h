@@ -3,35 +3,17 @@
 #include "wake.h"
 #include <QCoreApplication>
 
-constexpr qint16 DATASIZE{256};
-constexpr qint16 MASSIZE{1+512};
+#define FEND        0xC0    /* Frame END */
+#define FESC        0xDB    /* Frame ESCape */
+#define TFEND       0xDC    /* Transposed Frame END */
+#define TFESC       0xDD    /* Transposed Frame ESCape */
 
-class WakeCore
-{
-public:
-    WakeCore();
-    void do_crc8(uint8_t b, uint8_t *crc);
-    size_t byteStuff(uint8_t *data, size_t size, uint8_t *dataStuff);
-    bool byteParse(uint8_t data_byte);
-    char* get_dat();
-    uint8_t* get_sendMass();
+#define CRC_INIT    0xDE   /* Innitial CRC value */
+#define FRAME_SIZE       255     /* Max pack len */
 
-private:
-    uint8_t cmd;
-    uint8_t nbt;
-    uint8_t ptr;
-    uint8_t sta;
-    uint8_t crc;
-    uint8_t pre;
-    char dat[DATASIZE];
-    uint8_t sendMass[MASSIZE];
-};
+constexpr uint8_t ADDR_MASK{0x80};
 
-
-/**
-* \brief   RX process states:
-*/
-enum
+enum class rcvState
 {
   WAIT_FEND,     /* waiting receive FEND */
   WAIT_ADDR,     /* waiting receive ADDRESS */
@@ -39,4 +21,28 @@ enum
   WAIT_NBT,      /* waiting receive NUMBER OF DATA BYTES */
   WAIT_DATA,     /* receive DATA */
   WAIT_CRC,      /* waiting receive CRC */
+};
+
+class WakeCore
+{
+public:    
+    WakeCore();
+    bool byteParse(uint8_t data_byte);
+    size_t dataPrepare(uint8_t addr, uint8_t cmd, uint8_t *data, uint8_t size);
+    uint8_t *getSndData();
+    uint8_t *getRcvData();
+    uint8_t getRcvSize();
+    uint8_t getRcvCmd();
+
+private:
+    bool escSequence;
+    uint8_t cmd;
+    uint8_t nbt;
+    uint8_t addr;
+    uint8_t dataPtr;
+    rcvState sta;
+    uint8_t crc;
+    uint8_t rcvData[FRAME_SIZE];
+
+    uint8_t sndData[2 * FRAME_SIZE];
 };

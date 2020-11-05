@@ -6,7 +6,7 @@ ApplicationWindow {
     width: 360
     height: 480
     visible: true
-    title: qsTr("Stack")
+    title: "LPapp"
 
     onClosing: {
         close.accepted = false

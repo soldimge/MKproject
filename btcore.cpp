@@ -58,7 +58,8 @@ void BTcore::connectionEstablished()
 
 void BTcore::connectionInterrupted()
 {
-    this->addToLogs("Connection interrupted.");
+    this->addToLogs("Connection interrupted");
+    emit sendToQml("Connection interrupted");
 }
 
 void BTcore::sockectReadyToRead()
@@ -74,14 +75,17 @@ void BTcore::sockectReadyToRead()
     {
         if (WKread.byteParse(ch))
         {
-            this->addToLogs(WKread.get_dat());
+            this->addToLogs((char*)WKread.getRcvData());
         }
     }
+
+    sendWakePackToDevice(1, 1, "1234");
 }
 
 void BTcore::on_pushButton_Search_clicked()
 {
-    this->addToLogs("Search started.");
+    this->addToLogs("Search started");
+    emit sendToQml("Search started");
     btdevices.clear();
     this->discoveryAgent->start();
     connect(this->discoveryAgent, SIGNAL(deviceDiscovered(QBluetoothDeviceInfo)), this, SLOT(captureDeviceProperties(QBluetoothDeviceInfo)));
@@ -117,33 +121,19 @@ void BTcore::addToLogs(QString message)
 
 void BTcore::sendMessageToDevice(QString message)
 {
-    sendWakePackToDevice(0, 1, message);
+    sendWakePackToDevice(1, 1, message);
 }
 
 void BTcore::sendWakePackToDevice(uint8_t addr, uint8_t idCmd, QString message)
 {
     WakeCore WKsend;
-    size_t sendSize = 0;
-    uint8_t crc = CRC_INIT;
-    uint8_t msgLen = message.length();
 
-//    uint8_t *msgData = reinterpret_cast<uint8_t*>(message.toStdString().c_str());
-
-    WKsend.get_sendMass()[sendSize++] = FEND;
-    sendSize += WKsend.byteStuff(&addr, 1, &WKsend.get_sendMass()[sendSize]);
-    sendSize += WKsend.byteStuff(&idCmd, 1, &WKsend.get_sendMass()[sendSize]);
-    sendSize += WKsend.byteStuff(&msgLen, 1, &WKsend.get_sendMass()[sendSize]);
-    sendSize += WKsend.byteStuff((uint8_t*)message.toStdString().c_str(), msgLen, &WKsend.get_sendMass()[sendSize]);
-
-    for (size_t i = 0; i < sendSize; i++)
-    {
-        WKsend.do_crc8(WKsend.get_sendMass()[i], &crc);
-    }
-    sendSize += WKsend.byteStuff(&crc, 1, &WKsend.get_sendMass()[sendSize]);
+    size_t sendSize = WKsend.dataPrepare(addr, idCmd, (uint8_t*)message.toStdString().c_str(), message.length());
+    QByteArray sendArray((char*)WKsend.getSndData(), sendSize);
 
     if (this->socket->isOpen() && this->socket->isWritable()) {
         this->addToLogs("Sending message to device : " + message);
-        this->socket->write((char*)WKsend.get_sendMass(), sendSize);
+        this->socket->write(sendArray);
     } else {
         this->addToLogs("Cannot send message. No open connection.");
         emit sendToQml("Cannot send message. No open connection.");

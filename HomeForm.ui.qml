@@ -42,6 +42,7 @@ Page {
     TextInput {
         id: textInput
         anchors.fill: rectangle
+        verticalAlignment: Text.AlignVCenter
         horizontalAlignment: Text.AlignHCenter
         text: ""
         font.pointSize: 16
@@ -50,6 +51,7 @@ Page {
     Text {
         id: outText
         anchors.fill: rectangle2
+        verticalAlignment: Text.AlignVCenter
         horizontalAlignment: Text.AlignHCenter
         color: "#000000"
         text: ""
