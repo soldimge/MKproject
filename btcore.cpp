@@ -11,8 +11,7 @@ void pause(qint32 ms)
         QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
 }
 
-BTcore::BTcore(QObject *parent)
-    : QObject(parent)
+BTcore::BTcore(QObject *parent) : QObject(parent)
 {
     this->discoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
     this->socket = new QBluetoothSocket(QBluetoothServiceInfo::RfcommProtocol, this);
@@ -27,6 +26,7 @@ BTcore::BTcore(QObject *parent)
 
 BTcore::~BTcore()
 {
+    on_pushButton_Disconnect_clicked();
     delete discoveryAgent;
 }
 
@@ -35,12 +35,19 @@ void BTcore::captureDeviceProperties(const QBluetoothDeviceInfo &device)
 //    ui->comboBox_Devices->addItem(device.name() + "  >>>  " + device.address().toString());
     qDebug() << "device found. name: " << device.name() << " and address: " << device.address().toString();
     this->addToLogs("device found...\n  name/address: " + device.name() + " / " + device.address().toString());
+    btdevices[device.name()] = device.address().toString();
 }
 
 void BTcore::searchFinished()
 {
 //    ui->pushButton_Search->setEnabled(true);
     this->addToLogs("Search finished.");
+    emit endOfSearch();
+    for(auto i : btdevices)
+    {
+        qDebug() << i.first << " --- " << i.second;
+        emit addDevice(i.first);
+    }
 }
 
 void BTcore::connectionEstablished()
@@ -61,16 +68,8 @@ void BTcore::sockectReadyToRead()
 
     QByteArray line = this->socket->readLine();
 
-//    if (line.length() > 0)
-//    {
-//        QString terminator = "\r";
-
-//        int pos = line.lastIndexOf(terminator);
-////        line = line.left(pos);
-//        this->addToLogs(line);
-//        emit sendToQml(line);
-//    }
     WakeCore WKread;
+
     for (uint8_t ch : line)
     {
         if (WKread.byteParse(ch))
@@ -83,9 +82,7 @@ void BTcore::sockectReadyToRead()
 void BTcore::on_pushButton_Search_clicked()
 {
     this->addToLogs("Search started.");
-//    ui->pushButton_Search->setEnabled(false);
-//    ui->comboBox_Devices->clear();
-
+    btdevices.clear();
     this->discoveryAgent->start();
     connect(this->discoveryAgent, SIGNAL(deviceDiscovered(QBluetoothDeviceInfo)), this, SLOT(captureDeviceProperties(QBluetoothDeviceInfo)));
 }
@@ -100,24 +97,27 @@ void BTcore::on_pushButton_Connect_clicked()
         emit sendToQml("Connecting to device.");
 }
 
+void BTcore::connect_toDevice_clicked(QString name)
+{
+    on_pushButton_Disconnect_clicked();
+    this->addToLogs("Initialising connection.");
+    emit sendToQml("Initialising connection.");
+    static const QString serviceUuid(QStringLiteral("00001101-0000-1000-8000-00805F9B34FB"));
+    this->socket->connectToService(QBluetoothAddress(btdevices[name]), QBluetoothUuid(serviceUuid), QIODevice::ReadWrite);
+    this->addToLogs("Connecting to device/address:" + name + " / " + btdevices[name]);
+    emit sendToQml("Connecting to device.");
+}
+
 void BTcore::addToLogs(QString message)
 {
 //    QString currentDateTime = QDateTime::currentDateTime().toString("yyyy.MM.dd hh:mm:ss");
     QString currentDateTime = QDateTime::currentDateTime().toString("hh:mm:ss");
-    qDebug() << (currentDateTime + "\t" + message);
+    qDebug() << (currentDateTime + ":   " + message);
 }
 
 void BTcore::sendMessageToDevice(QString message)
 {
     sendWakePackToDevice(0, 1, message);
-
-//    if (this->socket->isOpen() && this->socket->isWritable()) {
-//        this->addToLogs("Sending message to device : " + message);
-//        this->socket->write(message.toStdString().c_str());
-//    } else {
-//        this->addToLogs("Cannot send message. No open connection.");
-//        emit sendToQml("Cannot send message. No open connection.");
-//    }
 }
 
 void BTcore::sendWakePackToDevice(uint8_t addr, uint8_t idCmd, QString message)
@@ -126,6 +126,7 @@ void BTcore::sendWakePackToDevice(uint8_t addr, uint8_t idCmd, QString message)
     size_t sendSize = 0;
     uint8_t crc = CRC_INIT;
     uint8_t msgLen = message.length();
+
 //    uint8_t *msgData = reinterpret_cast<uint8_t*>(message.toStdString().c_str());
 
     WKsend.get_sendMass()[sendSize++] = FEND;

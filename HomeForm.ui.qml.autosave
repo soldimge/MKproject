@@ -63,7 +63,7 @@ Page {
                     outText.text = mes
                     if (outText.text == "Connecting to device.")
                         busyIndicator.visible = true
-                    else /*if (outText.text == "connected" || outText.text == "Disconnected")*/
+                    else 
                         busyIndicator.visible = false
                 }                
                 onAddDevice: {
