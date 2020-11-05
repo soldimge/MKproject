@@ -63,7 +63,7 @@ Page {
                     outText.text = mes
                     if (outText.text == "Connecting to device.")
                         busyIndicator.visible = true
-                    else /*if (outText.text == "connected" || outText.text == "Disconnected")*/
+                    else
                         busyIndicator.visible = false
                 }                
                 onAddDevice: {
@@ -75,7 +75,7 @@ Page {
                     toolButton4.enabled = true
                     busyIndicator.visible = false
                     toolButton2.enabled = true
-                    comboBox.popup.open()
+//                    comboBox.popup.open()
                 }
     }
 
@@ -111,7 +111,8 @@ Page {
         anchors.left: parent.left
         anchors.right: parent.right
         flat: true
-        currentIndex: 0
+        currentIndex: -1
+        displayText: "Choose device"
         background: Rectangle
                 {
                     color: "#232a37"
@@ -136,6 +137,7 @@ Page {
                     color: "#9cbdec"
                     font.pointSize: 25
                     verticalAlignment: Text.AlignVCenter
+                    horizontalAlignment: Text.AlignHCenter
                 }
                 popup: Popup {
                     dim: true

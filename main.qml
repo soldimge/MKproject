@@ -299,6 +299,7 @@ ApplicationWindow {
 
         comboBox.onActivated:
         {
+            comboBox.displayText = comboBox.model[comboBox.currentIndex]
             backEnd.connect_toDevice_clicked(comboBox.displayText);
             toolButton2Pic.source = "qrc:/images/bluetooth_on.png";
         }
