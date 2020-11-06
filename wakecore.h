@@ -1,6 +1,5 @@
 #pragma once
 
-#include "wake.h"
 #include <QCoreApplication>
 
 #define FEND        0xC0    /* Frame END */

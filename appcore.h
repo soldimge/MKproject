@@ -8,13 +8,13 @@
 #include <QTime>
 #include <map>
 
-class BTcore : public QObject
+class AppCore : public QObject
 {
     Q_OBJECT
 
 public:
-    BTcore(QObject *parent = nullptr);
-    ~BTcore();
+    AppCore(QObject *parent = nullptr);
+    ~AppCore();
     Q_INVOKABLE void on_pushButton_Connect_clicked();
     Q_INVOKABLE void on_pushButton_Search_clicked();
     Q_INVOKABLE void connect_toDevice_clicked(QString);

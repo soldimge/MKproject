@@ -3,7 +3,7 @@
 #include <QQmlApplicationEngine>
 #include <QtQml/QQmlContext>
 
-#include "btcore.h"
+#include "appcore.h"
 #include "tablemodel.h"
 
 //#include "QtAndroidTools.h"
@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 
     qmlRegisterType<TableModel>("TableModel", 0, 1, "TableModel");
 
-    BTcore backEnd;
+    AppCore backEnd;
 
     QQmlApplicationEngine engine;
     QQmlContext *context = engine.rootContext();

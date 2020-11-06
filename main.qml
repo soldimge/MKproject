@@ -4,7 +4,7 @@ import QtQuick.Controls 2.15
 ApplicationWindow {
     id: window
     width: 360
-    height: 480
+    height: 640
     visible: true
     title: "LPapp"
 
@@ -61,6 +61,7 @@ ApplicationWindow {
     }
 
     header: ToolBar {
+        id: toolBar
         contentHeight: toolButton.implicitHeight
 
         ToolButton {
@@ -294,9 +295,8 @@ ApplicationWindow {
             textInput.text = ""
         }
         button1.onClicked: {
-            backEnd.sendMessageToDevice(textInput.text /*+ "\r"*/)
+            backEnd.sendMessageToDevice(textInput.text)
         }
-
         comboBox.onActivated:
         {
             comboBox.displayText = comboBox.model[comboBox.currentIndex]
@@ -304,4 +304,7 @@ ApplicationWindow {
             toolButton2Pic.source = "qrc:/images/bluetooth_on.png";
         }
     }
+
+    Page1Form {}
+    Page2Form {}
 }

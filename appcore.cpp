@@ -1,4 +1,4 @@
-#include "btcore.h"
+#include "appcore.h"
 #include "wakecore.h"
 
 #include <QDebug>
@@ -11,7 +11,7 @@ void pause(qint32 ms)
         QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
 }
 
-BTcore::BTcore(QObject *parent) : QObject(parent)
+AppCore::AppCore(QObject *parent) : QObject(parent)
 {
     this->discoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
     this->socket = new QBluetoothSocket(QBluetoothServiceInfo::RfcommProtocol, this);
@@ -24,13 +24,13 @@ BTcore::BTcore(QObject *parent) : QObject(parent)
     connect(this->socket, SIGNAL(readyRead()), this, SLOT(sockectReadyToRead()));
 }
 
-BTcore::~BTcore()
+AppCore::~AppCore()
 {
     on_pushButton_Disconnect_clicked();
     delete discoveryAgent;
 }
 
-void BTcore::captureDeviceProperties(const QBluetoothDeviceInfo &device)
+void AppCore::captureDeviceProperties(const QBluetoothDeviceInfo &device)
 {
 //    ui->comboBox_Devices->addItem(device.name() + "  >>>  " + device.address().toString());
     qDebug() << "device found. name: " << device.name() << " and address: " << device.address().toString();
@@ -38,9 +38,8 @@ void BTcore::captureDeviceProperties(const QBluetoothDeviceInfo &device)
     btdevices[device.name()] = device.address().toString();
 }
 
-void BTcore::searchFinished()
+void AppCore::searchFinished()
 {
-//    ui->pushButton_Search->setEnabled(true);
     this->addToLogs("Search finished.");
     emit endOfSearch();
     for(auto i : btdevices)
@@ -50,19 +49,19 @@ void BTcore::searchFinished()
     }
 }
 
-void BTcore::connectionEstablished()
+void AppCore::connectionEstablished()
 {
     this->addToLogs("connected");
     emit sendToQml("connected");
 }
 
-void BTcore::connectionInterrupted()
+void AppCore::connectionInterrupted()
 {
     this->addToLogs("Connection interrupted");
     emit sendToQml("Connection interrupted");
 }
 
-void BTcore::sockectReadyToRead()
+void AppCore::sockectReadyToRead()
 {
 /*    while (this->socket->canReadLine())*/
     pause(200);
@@ -75,14 +74,14 @@ void BTcore::sockectReadyToRead()
     {
         if (WKread.byteParse(ch))
         {
-            this->addToLogs((char*)WKread.getRcvData());
+            this->addToLogs(QString ((char*)WKread.getRcvData()));
         }
     }
-
+    this->addToLogs((char*)WKread.getRcvData());
     sendWakePackToDevice(1, 1, "1234");
 }
 
-void BTcore::on_pushButton_Search_clicked()
+void AppCore::on_pushButton_Search_clicked()
 {
     this->addToLogs("Search started");
     emit sendToQml("Search started");
@@ -91,7 +90,7 @@ void BTcore::on_pushButton_Search_clicked()
     connect(this->discoveryAgent, SIGNAL(deviceDiscovered(QBluetoothDeviceInfo)), this, SLOT(captureDeviceProperties(QBluetoothDeviceInfo)));
 }
 
-void BTcore::on_pushButton_Connect_clicked()
+void AppCore::on_pushButton_Connect_clicked()
 {
         this->addToLogs("Initialising connection.");
         emit sendToQml("Initialising connection.");
@@ -101,7 +100,7 @@ void BTcore::on_pushButton_Connect_clicked()
         emit sendToQml("Connecting to device.");
 }
 
-void BTcore::connect_toDevice_clicked(QString name)
+void AppCore::connect_toDevice_clicked(QString name)
 {
     on_pushButton_Disconnect_clicked();
     this->addToLogs("Initialising connection.");
@@ -112,19 +111,19 @@ void BTcore::connect_toDevice_clicked(QString name)
     emit sendToQml("Connecting to device.");
 }
 
-void BTcore::addToLogs(QString message)
+void AppCore::addToLogs(QString message)
 {
 //    QString currentDateTime = QDateTime::currentDateTime().toString("yyyy.MM.dd hh:mm:ss");
     QString currentDateTime = QDateTime::currentDateTime().toString("hh:mm:ss");
     qDebug() << (currentDateTime + ":   " + message);
 }
 
-void BTcore::sendMessageToDevice(QString message)
+void AppCore::sendMessageToDevice(QString message)
 {
     sendWakePackToDevice(1, 1, message);
 }
 
-void BTcore::sendWakePackToDevice(uint8_t addr, uint8_t idCmd, QString message)
+void AppCore::sendWakePackToDevice(uint8_t addr, uint8_t idCmd, QString message)
 {
     WakeCore WKsend;
 
@@ -140,7 +139,7 @@ void BTcore::sendWakePackToDevice(uint8_t addr, uint8_t idCmd, QString message)
     }
 }
 
-void BTcore::on_pushButton_Disconnect_clicked()
+void AppCore::on_pushButton_Disconnect_clicked()
 {
     this->addToLogs("Closing connection.");
     emit sendToQml("Closing connection.");

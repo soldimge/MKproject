@@ -3,7 +3,7 @@ import QtQuick.Controls 2.15
 
 Page {
     width: 360
-    height: 480
+    height: 640
 
     title: qsTr("Page 2")
 

@@ -118,7 +118,7 @@ bool WakeCore::byteParse(uint8_t data_byte)
       }
     case rcvState::WAIT_NBT:
       {
-        if(data_byte > FRAME)
+        if(data_byte > FRAME_SIZE)
         {
             sta = rcvState::WAIT_FEND;
         }

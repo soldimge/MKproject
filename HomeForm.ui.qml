@@ -10,14 +10,8 @@ Page {
     property alias comboBox: comboBox
 
     width: 360
-    height: 480
+    height: 640
     id: hpage
-
-    Rectangle {
-        id: background
-        anchors.fill: parent
-        color: "#2d374a" //"#2d374a"
-    }
 
     Rectangle {
         id: rectangle2
@@ -35,7 +29,7 @@ Page {
         anchors.leftMargin: 20
         anchors.top: parent.top
         anchors.topMargin: height*2
-        height: 30
+        height: parent.height/16
         color: "#d7d6d5"
     }
 
@@ -55,7 +49,7 @@ Page {
         horizontalAlignment: Text.AlignHCenter
         color: "#000000"
         text: ""
-        font.pointSize: 10
+        font.pointSize: 16
     }
 
     Connections {
@@ -65,7 +59,7 @@ Page {
                     outText.text = mes
                     if (outText.text == "Connecting to device.")
                         busyIndicator.visible = true
-                    else
+                    else if (outText.text == "connected" || outText.text == "Disconnected")
                         busyIndicator.visible = false
                 }                
                 onAddDevice: {
@@ -86,10 +80,10 @@ Page {
         anchors.left: rectangle.left
         anchors.top: rectangle.bottom
         anchors.topMargin: height/4
-        text: "clear"
+        text: "CLEAR"
         flat: true
         highlighted: true
-        font.pointSize: 14
+        font.pointSize: 16
     }
 
     Button {
@@ -97,10 +91,10 @@ Page {
         anchors.right: rectangle.right
         anchors.top: rectangle.bottom
         anchors.topMargin: height/4
-        text: "send"
+        text: "SEND"
         flat: true
         highlighted: true
-        font.pointSize: 14
+        font.pointSize: 16
     }
 
     ComboBox {
@@ -109,7 +103,7 @@ Page {
         model: listModel
         height: rectangle.height*2
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: height
+//        anchors.bottomMargin: height
         anchors.left: parent.left
         anchors.right: parent.right
         flat: true
@@ -137,7 +131,7 @@ Page {
                     leftPadding: 20
                     text: comboBox.displayText
                     color: "#9cbdec"
-                    font.pointSize: 25
+                    font.pointSize: 22
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
                 }
@@ -147,7 +141,7 @@ Page {
                     x: hpage.width - width
                     y: comboBox.height - height
                     leftPadding: 0
-                    implicitHeight: hpage.height/2
+                    implicitHeight: listModel.count * comboBox.height * 0.6 > hpage.height/2 ? hpage.height/2 : listModel.count * comboBox.height * 0.6
                     padding: 0
                     contentItem: ListView {
                         clip: true

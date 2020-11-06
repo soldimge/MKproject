@@ -9,15 +9,14 @@ android: QT += androidextras
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES = \
-    btcore.cpp \
+    appcore.cpp \
     main.cpp \
     tablemodel.cpp \
     wakecore.cpp
 
 HEADERS = \
-    btcore.h \
+    appcore.h \
     tablemodel.h \
-    wake.h \
     wakecore.h
 
 RESOURCES += qml.qrc
