@@ -8,6 +8,8 @@
 #include <QTime>
 #include <map>
 
+#include "wakecore.h"
+
 class AppCore : public QObject
 {
     Q_OBJECT
@@ -27,7 +29,6 @@ private slots:
     void connectionEstablished();
     void connectionInterrupted();
     void sockectReadyToRead();
-    void sendWakePackToDevice(uint8_t addr, uint8_t idCmd, QString message);
 
 signals:
     void sendToQml(QString mes);
@@ -35,9 +36,9 @@ signals:
     void endOfSearch();
 
 private:
-    QBluetoothDeviceDiscoveryAgent *discoveryAgent;
-    QBluetoothSocket *socket;
-    void addToLogs(QString);
-    std::map<QString, QString> btdevices;
+    QBluetoothDeviceDiscoveryAgent *_discoveryAgent;
+    QBluetoothSocket *_socket;
+    std::map<QString, QString> _btdevices;
+    WakeCore _wake;
 };
 #endif // MAINWINDOW_H

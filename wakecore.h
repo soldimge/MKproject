@@ -2,46 +2,54 @@
 
 #include <QCoreApplication>
 
-#define FEND        0xC0    /* Frame END */
-#define FESC        0xDB    /* Frame ESCape */
-#define TFEND       0xDC    /* Transposed Frame END */
-#define TFESC       0xDD    /* Transposed Frame ESCape */
+constexpr uint8_t FEND{0xC0};       /* Frame END */
+constexpr uint8_t FESC{0xDB};       /* Frame ESCape */
+constexpr uint8_t TFEND{0xDC};      /* Transposed Frame END */
+constexpr uint8_t TFESC{0xDD};      /* Transposed Frame ESCape */
 
-#define CRC_INIT    0xDE   /* Innitial CRC value */
-#define FRAME_SIZE       255     /* Max pack len */
+constexpr uint8_t CRC_INIT{0xDE};   /* Crc init value */
+constexpr uint8_t FRAME_SIZE{255};  /* Max payload size */
 
-constexpr uint8_t ADDR_MASK{0x80};
+constexpr uint8_t ADDR_MASK{0x80};  /* Mask of address bit */
 
-enum class rcvState
+enum class RcvState
 {
-  WAIT_FEND,     /* waiting receive FEND */
-  WAIT_ADDR,     /* waiting receive ADDRESS */
-  WAIT_CMD,      /* waiting receive COMMAND ID */
-  WAIT_NBT,      /* waiting receive NUMBER OF DATA BYTES */
-  WAIT_DATA,     /* receive DATA */
-  WAIT_CRC,      /* waiting receive CRC */
+    RCV_FEND,   /* waiting receive FEND */
+    RCV_ADDR,   /* waiting receive ADDRESS */
+    RCV_CMD,    /* waiting receive COMMAND ID */
+    RCV_NBT,    /* waiting receive NUMBER OF DATA BYTES */
+    RCV_DATA,   /* receive DATA */
+    RCV_CRC,    /* waiting receive CRC */
+};
+
+enum class ParseResult
+{
+    PARSE_SUCCESS,
+    PARSE_ERROR,
+    PARSE_CONTINUE
 };
 
 class WakeCore
 {
 public:    
     WakeCore();
-    bool byteParse(uint8_t data_byte);
-    size_t dataPrepare(uint8_t addr, uint8_t cmd, uint8_t *data, uint8_t size);
+    ParseResult byteParse(uint8_t data_byte);
+    size_t dataPrepare(uint8_t cmd, uint8_t *data, uint8_t size, uint8_t addr = 0);
     uint8_t *getSndData();
     uint8_t *getRcvData();
     uint8_t getRcvSize();
     uint8_t getRcvCmd();
 
 private:
-    bool escSequence;
-    uint8_t cmd;
-    uint8_t nbt;
-    uint8_t addr;
-    uint8_t dataPtr;
-    rcvState sta;
-    uint8_t crc;
-    uint8_t rcvData[FRAME_SIZE];
+    bool _escSequence;
+    RcvState _state;
 
-    uint8_t sndData[2 * FRAME_SIZE];
+    uint8_t _rcvAddr;
+    uint8_t _rcvCmd;
+    uint8_t _rcvSize;
+    uint8_t _rcvDataPtr;
+    uint8_t _rcvData[FRAME_SIZE];
+    uint8_t _rcvCrc;
+
+    uint8_t _sndData[2 + 2 * (3 + FRAME_SIZE)];
 };

@@ -43,30 +43,30 @@ size_t byteStuff(uint8_t *data, size_t size, uint8_t *dataStuff)
 }
 }
 
-WakeCore::WakeCore() : sta{rcvState::WAIT_FEND}
+WakeCore::WakeCore() : _state{RcvState::RCV_FEND}
 {
 
 }
 
-bool WakeCore::byteParse(uint8_t data_byte)
+ParseResult WakeCore::byteParse(uint8_t data_byte)
 {
-    bool result = false;
+    ParseResult result = ParseResult::PARSE_CONTINUE;
 
     if(data_byte == FEND)/* start frame*/
     {
-        escSequence = false;
-        sta = rcvState::WAIT_ADDR;
-        crc = CRC_INIT;
-        do_crc8(data_byte, &crc);
-        return false;
+        _escSequence = false;
+        _rcvCrc = CRC_INIT;
+        do_crc8(data_byte, &_rcvCrc);
+        _state = RcvState::RCV_ADDR;
+        return result;
     }
 
-    if(sta == rcvState::WAIT_FEND)
+    if(_state == RcvState::RCV_FEND)
     {
-      return false;
+      return result;
     }
 
-    if(escSequence)
+    if(_escSequence)
     {
       if(data_byte == TFESC)
       {
@@ -78,80 +78,87 @@ bool WakeCore::byteParse(uint8_t data_byte)
       }
       else
       {
-        sta = rcvState::WAIT_FEND;
-        return 0;
+        _state = RcvState::RCV_FEND;
+        return ParseResult::PARSE_ERROR;
       }
     }
     else if(data_byte == FESC)
     {
-        escSequence = true;
-        return 0;
+        _escSequence = true;
+        return result;
     }
 
-    switch(sta)
+    switch(_state)
     {
-    case rcvState::WAIT_ADDR:
+    case RcvState::RCV_ADDR:
       {
         if(data_byte & ADDR_MASK)
         {
-            data_byte &= (~ADDR_MASK);
-            addr = data_byte;
-            do_crc8(data_byte, &crc);
-            sta = rcvState::WAIT_CMD;
+            // clear Addr bit
+            data_byte &= ~ADDR_MASK;
+            _rcvAddr = data_byte;
+            do_crc8(data_byte, &_rcvCrc);
+            _state = RcvState::RCV_CMD;
             break;
         }
       }
       /* no break */
-    case rcvState::WAIT_CMD:
+    case RcvState::RCV_CMD:
       {
         if(data_byte & ADDR_MASK)
         {
-            sta = rcvState::WAIT_FEND;
+            result = ParseResult::PARSE_ERROR;
+            _state = RcvState::RCV_FEND;
         }
         else
         {
-            cmd = data_byte;
-            do_crc8(data_byte, &crc);
-            sta = rcvState::WAIT_NBT;
+            _rcvCmd = data_byte;
+            do_crc8(data_byte, &_rcvCrc);
+            _state = RcvState::RCV_NBT;
         }
         break;
       }
-    case rcvState::WAIT_NBT:
+    case RcvState::RCV_NBT:
       {
         if(data_byte > FRAME_SIZE)
         {
-            sta = rcvState::WAIT_FEND;
+            result = ParseResult::PARSE_ERROR;
+            _state = RcvState::RCV_FEND;
         }
         else
         {
-            nbt = data_byte;
-            do_crc8(data_byte, &crc);
-            dataPtr = 0;
-            sta = rcvState::WAIT_DATA;
+            _rcvSize = data_byte;
+            do_crc8(data_byte, &_rcvCrc);
+            _rcvDataPtr = 0;
+            _state = RcvState::RCV_DATA;
         }
         break;
       }
-    case rcvState::WAIT_DATA:
+    case RcvState::RCV_DATA:
       {
-        if(dataPtr < nbt)
+        if(_rcvDataPtr < _rcvSize)
         {
-          rcvData[dataPtr++] = data_byte;
-          do_crc8(data_byte, &crc);
+          _rcvData[_rcvDataPtr++] = data_byte;
+          do_crc8(data_byte, &_rcvCrc);
         }
-        if (dataPtr == nbt)
+        if (_rcvDataPtr == _rcvSize)
         {
-            sta = rcvState::WAIT_CRC;
+            _state = RcvState::RCV_CRC;
         }
         break;
       }
       /* no break */
-    case rcvState::WAIT_CRC:
+    case RcvState::RCV_CRC:
       {
-        if(data_byte == crc)
+        if(data_byte == _rcvCrc)
         {
-          result = true;
+            result = ParseResult::PARSE_SUCCESS;
         }
-        sta = rcvState::WAIT_FEND;
+        else
+        {
+            result = ParseResult::PARSE_ERROR;
+        }
+        _state = RcvState::RCV_FEND;
         break;
       }
     default:
@@ -161,50 +168,67 @@ bool WakeCore::byteParse(uint8_t data_byte)
     return result;
 }
 
-size_t WakeCore::dataPrepare(uint8_t addr, uint8_t cmd, uint8_t *data, uint8_t size)
+size_t WakeCore::dataPrepare(uint8_t cmd, uint8_t *data, uint8_t size, uint8_t addr)
 {
     size_t sendSize = 0;
     uint8_t crc = CRC_INIT;
 
+    // prepare FEND
     do_crc8(FEND, &crc);
-    do_crc8(addr, &crc);
+    _sndData[sendSize++] = FEND;
+
+    // prepare ADDR
+    if (addr)
+    {
+        // clear Addr bit
+        addr &= ~ADDR_MASK;
+        do_crc8(addr, &crc);
+        // set Addr bit
+        addr |= ADDR_MASK;
+        sendSize += byteStuff(&addr, 1, &_sndData[sendSize]);
+    }
+
+    // prepare CMD
+    // clear Addr bit
+    cmd &= ~ADDR_MASK;
     do_crc8(cmd, &crc);
+    sendSize += byteStuff(&cmd, 1, &_sndData[sendSize]);
+
+    // prepare SIZE
     do_crc8(size, &crc);
+    sendSize += byteStuff(&size, 1, &_sndData[sendSize]);
+
+    // prepare DATA
     for (size_t i = 0; i < size; i++)
     {
         do_crc8(data[i], &crc);
     }
+    sendSize += byteStuff(data, size, &_sndData[sendSize]);
 
-    addr |= ADDR_MASK;
-
-    sndData[sendSize++] = FEND;
-    sendSize += byteStuff(&addr, 1, &sndData[sendSize]);
-    sendSize += byteStuff(&cmd, 1, &sndData[sendSize]);
-    sendSize += byteStuff(&size, 1, &sndData[sendSize]);
-    sendSize += byteStuff(data, size, &sndData[sendSize]);
-    sendSize += byteStuff(&crc, 1, &sndData[sendSize]);
+    // prepare CRC
+    sendSize += byteStuff(&crc, 1, &_sndData[sendSize]);
 
     return sendSize;
 }
 
 uint8_t *WakeCore::getSndData()
 {
-    return sndData;
+    return _sndData;
 }
 
 uint8_t *WakeCore::getRcvData()
 {
-    return rcvData;
+    return _rcvData;
 }
 
 
 uint8_t WakeCore::getRcvSize()
 {
-    return dataPtr;
+    return _rcvSize;
 }
 
 
 uint8_t WakeCore::getRcvCmd()
 {
-    return cmd;
+    return _rcvCmd;
 }
