@@ -40,5 +40,10 @@ private:
     QBluetoothSocket *_socket;
     std::map<QString, QString> _btdevices;
     WakeCore _wake;
+    bool _reqIsActive{0};
+    uint8_t _reqCmd;
+    QByteArray _answer;
+
+    QByteArray sentCommand(uint8_t cmd, QByteArray data, uint8_t addr = 0);
 };
 #endif // MAINWINDOW_H

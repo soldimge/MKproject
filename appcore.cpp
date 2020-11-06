@@ -75,19 +75,63 @@ void AppCore::connectionInterrupted()
 void AppCore::sockectReadyToRead()
 {
     QByteArray rcvArray = this->_socket->readLine();
-    QString rcvDataString;
 
     for (uint8_t byte : rcvArray)
     {
         if (_wake.byteParse(byte) == ParseResult::PARSE_SUCCESS)
         {
-            rcvDataString = QString((QChar*)_wake.getRcvData(), _wake.getRcvSize());
-            addToLogs("CMD " + QString(_wake.getRcvCmd()) + ": " + rcvDataString);
+            uint8_t rcvCmd = _wake.getRcvCmd();
+            QByteArray rcvArray = QByteArray((char*)_wake.getRcvData(), _wake.getRcvSize());
+
+            addToLogs("CMD " + QString(rcvCmd) + ": " + rcvArray);
+
+            if (_reqIsActive && _reqCmd == rcvCmd)
+            {
+                _reqIsActive = false;
+                _answer = rcvArray;
+            }
+
+            sentCommand(rcvCmd, rcvArray);
         }
     }
+}
 
-    addToLogs((char*)_wake.getRcvData());
-    sendMessageToDevice(rcvDataString);
+QByteArray AppCore::sentCommand(uint8_t cmd, QByteArray data, uint8_t addr)
+{
+    size_t sendSize = _wake.dataPrepare(cmd, (uint8_t*)data.data(), data.length(), addr);
+
+    if (this->_socket->isOpen() && this->_socket->isWritable())
+    {
+        addToLogs("Sending message to device : " + QString(data));
+        if (this->_socket->write((char*)_wake.getSndData(), sendSize) == (qint64)sendSize)
+        {
+            _reqIsActive = true;
+            size_t timeout = 0;
+            while(_reqIsActive && timeout < 1000)
+            {
+                //wait(20);
+                timeout += 20;
+            }
+
+            if (!_reqIsActive)
+            {
+                //success recieving
+                return _answer;
+            }
+            else
+            {
+                _reqIsActive = false;
+                //error timeout
+            }
+        }
+    }
+    else
+    {
+        addToLogs("Cannot send message. No open connection.");
+        emit sendToQml("Cannot send message. No open connection.");
+    }
+
+    return nullptr;
 }
 
 void AppCore::on_pushButton_Search_clicked()
@@ -122,19 +166,27 @@ void AppCore::connect_toDevice_clicked(QString name)
 
 void AppCore::sendMessageToDevice(QString message)
 {
+    QByteArray sendArray;
     uint8_t idCmd = 1;
-    size_t sendSize = _wake.dataPrepare(idCmd, (uint8_t*)message.toStdString().c_str(), message.length());
 
-    if (this->_socket->isOpen() && this->_socket->isWritable())
+#if 1//ascii
+    sendArray = QByteArray::fromStdString(message.toStdString());
+#else
+    QStringList byteList = message.split(" ");
+#if 0//hex
+    for(QString byte : byteList)
     {
-        addToLogs("Sending message to device : " + message);
-        this->_socket->write((char*)_wake.getSndData(), sendSize);
+        sendArray += byte.toUInt(nullptr, 16);
     }
-    else
+#else//dec
+    for(QString byte : byteList)
     {
-        addToLogs("Cannot send message. No open connection.");
-        emit sendToQml("Cannot send message. No open connection.");
+        sendArray += byte.toUInt(nullptr, 10);
     }
+#endif
+#endif
+
+    sentCommand(idCmd, sendArray);
 }
 
 void AppCore::on_pushButton_Disconnect_clicked()
