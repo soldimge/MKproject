@@ -305,6 +305,6 @@ ApplicationWindow {
         }
     }
 
-    Page1Form {}
-    Page2Form {}
+//    Page1Form {}
+//    Page2Form {}
 }
