@@ -295,7 +295,7 @@ ApplicationWindow {
             textInput.text = ""
         }
         button1.onClicked: {
-            backEnd.sendMessageToDevice(textInput.text)
+            backEnd.sendMessageToDevice(cmdInput.text, textInput.text, tumbler.currentIndex)
         }
         comboBox.onActivated:
         {
