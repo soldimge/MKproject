@@ -9,6 +9,7 @@ constexpr uint8_t TFESC{0xDD};      /* Transposed Frame ESCape */
 
 constexpr uint8_t CRC_INIT{0xDE};   /* Crc init value */
 constexpr uint8_t FRAME_SIZE{255};  /* Max payload size */
+constexpr size_t SEND_SIZE{2 + 2 * (3 + FRAME_SIZE)};
 
 constexpr uint8_t ADDR_MASK{0x80};  /* Mask of address bit */
 
@@ -33,7 +34,7 @@ class WakeCore
 {
 public:    
     WakeCore();
-    ParseResult byteParse(uint8_t data_byte);
+    ParseResult byteParse(uint8_t rcvByte);
     size_t dataPrepare(uint8_t cmd, uint8_t *data, uint8_t size, uint8_t addr = 0);
     uint8_t *getSndData();
     uint8_t *getRcvData();
@@ -42,7 +43,7 @@ public:
 
 private:
     bool _escSequence;
-    RcvState _state;
+    RcvState _rcvState;
 
     uint8_t _rcvAddr;
     uint8_t _rcvCmd;
@@ -51,5 +52,5 @@ private:
     uint8_t _rcvData[FRAME_SIZE];
     uint8_t _rcvCrc;
 
-    uint8_t _sndData[2 + 2 * (3 + FRAME_SIZE)];
+    uint8_t _sndData[SEND_SIZE];
 };

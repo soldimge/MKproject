@@ -43,114 +43,112 @@ size_t byteStuff(uint8_t *data, size_t size, uint8_t *dataStuff)
 }
 }
 
-WakeCore::WakeCore() : _state{RcvState::RCV_FEND}
+WakeCore::WakeCore()
+    : _rcvState{RcvState::RCV_FEND}
 {
 
 }
 
-ParseResult WakeCore::byteParse(uint8_t data_byte)
+ParseResult WakeCore::byteParse(uint8_t rcvByte)
 {
     ParseResult result = ParseResult::PARSE_CONTINUE;
 
-    if(data_byte == FEND)/* start frame*/
+    if(rcvByte == FEND)
     {
+        // start frame
         _escSequence = false;
         _rcvCrc = CRC_INIT;
-        do_crc8(data_byte, &_rcvCrc);
-        _state = RcvState::RCV_ADDR;
+        do_crc8(rcvByte, &_rcvCrc);
+        _rcvState = RcvState::RCV_ADDR;
         return result;
     }
 
-    if(_state == RcvState::RCV_FEND)
+    if(_rcvState == RcvState::RCV_FEND)
     {
       return result;
     }
 
     if(_escSequence)
     {
-      if(data_byte == TFESC)
+      if(rcvByte == TFESC)
       {
-        data_byte = FESC;
+        rcvByte = FESC;
       }
-      else if(data_byte == TFEND)
+      else if(rcvByte == TFEND)
       {
-        data_byte = FEND;
+        rcvByte = FEND;
       }
       else
       {
-        _state = RcvState::RCV_FEND;
+        _rcvState = RcvState::RCV_FEND;
         return ParseResult::PARSE_ERROR;
       }
     }
-    else if(data_byte == FESC)
+    else if(rcvByte == FESC)
     {
         _escSequence = true;
         return result;
     }
 
-    switch(_state)
+    switch(_rcvState)
     {
     case RcvState::RCV_ADDR:
-      {
-        if(data_byte & ADDR_MASK)
+        if(rcvByte & ADDR_MASK)
         {
             // clear Addr bit
-            data_byte &= ~ADDR_MASK;
-            _rcvAddr = data_byte;
-            do_crc8(data_byte, &_rcvCrc);
-            _state = RcvState::RCV_CMD;
+            rcvByte &= ~ADDR_MASK;
+            _rcvAddr = rcvByte;
+            do_crc8(rcvByte, &_rcvCrc);
+            _rcvState = RcvState::RCV_CMD;
             break;
         }
-      }
+        else
+        {
+            _rcvAddr = 0;
+            // addr not exist it packet - go to RCV_CMD state right now
+        }
       /* no break */
     case RcvState::RCV_CMD:
-      {
-        if(data_byte & ADDR_MASK)
+        if(rcvByte & ADDR_MASK)
         {
             result = ParseResult::PARSE_ERROR;
-            _state = RcvState::RCV_FEND;
+            _rcvState = RcvState::RCV_FEND;
         }
         else
         {
-            _rcvCmd = data_byte;
-            do_crc8(data_byte, &_rcvCrc);
-            _state = RcvState::RCV_NBT;
+            _rcvCmd = rcvByte;
+            do_crc8(rcvByte, &_rcvCrc);
+            _rcvState = RcvState::RCV_NBT;
         }
         break;
-      }
     case RcvState::RCV_NBT:
-      {
-        if(data_byte > FRAME_SIZE)
+        if(rcvByte > FRAME_SIZE)
         {
             result = ParseResult::PARSE_ERROR;
-            _state = RcvState::RCV_FEND;
+            _rcvState = RcvState::RCV_FEND;
         }
         else
         {
-            _rcvSize = data_byte;
-            do_crc8(data_byte, &_rcvCrc);
+            _rcvSize = rcvByte;
+            do_crc8(rcvByte, &_rcvCrc);
             _rcvDataPtr = 0;
-            _state = RcvState::RCV_DATA;
+            _rcvState = RcvState::RCV_DATA;
         }
         break;
-      }
     case RcvState::RCV_DATA:
-      {
         if(_rcvDataPtr < _rcvSize)
         {
-          _rcvData[_rcvDataPtr++] = data_byte;
-          do_crc8(data_byte, &_rcvCrc);
+          _rcvData[_rcvDataPtr++] = rcvByte;
+          do_crc8(rcvByte, &_rcvCrc);
         }
         if (_rcvDataPtr == _rcvSize)
         {
-            _state = RcvState::RCV_CRC;
+            _rcvState = RcvState::RCV_CRC;
         }
         break;
-      }
       /* no break */
     case RcvState::RCV_CRC:
-      {
-        if(data_byte == _rcvCrc)
+        if(rcvByte == _rcvCrc)
         {
             result = ParseResult::PARSE_SUCCESS;
         }
@@ -158,9 +156,8 @@ ParseResult WakeCore::byteParse(uint8_t data_byte)
         {
             result = ParseResult::PARSE_ERROR;
         }
-        _state = RcvState::RCV_FEND;
+        _rcvState = RcvState::RCV_FEND;
         break;
-      }
     default:
         break;
     }

@@ -102,7 +102,8 @@ QByteArray AppCore::sentCommand(uint8_t cmd, QByteArray data, uint8_t addr)
 
     if (this->_socket->isOpen() && this->_socket->isWritable())
     {
-        addToLogs("Sending message to device : " + QString(data));
+        addToLogs("Send CMD " + QString(cmd) + ": " + QString(data));
+
         if (this->_socket->write((char*)_wake.getSndData(), sendSize) == (qint64)sendSize)
         {
             _reqIsActive = true;
