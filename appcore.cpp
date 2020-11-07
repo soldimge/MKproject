@@ -5,7 +5,7 @@
 
 namespace
 {
-void addToLogs(QString message)
+    void addToLogs(QString message)
 {
 //    QString currentDateTime = QDateTime::currentDateTime().toString("yyyy.MM.dd hh:mm:ss");
     QString currentDateTime = QDateTime::currentDateTime().toString("hh:mm:ss");
@@ -43,7 +43,6 @@ AppCore::~AppCore()
 
 void AppCore::captureDeviceProperties(const QBluetoothDeviceInfo &device)
 {
-//    ui->comboBox_Devices->addItem(device.name() + "  >>>  " + device.address().toString());
     addToLogs("device found. name: " + device.name() + " and address: " + device.address().toString());
     addToLogs("device found...\n  name/address: " + device.name() + " / " + device.address().toString());
     _btdevices[device.name()] = device.address().toString();
@@ -90,7 +89,6 @@ void AppCore::sockectReadyToRead()
                 _reqIsActive = false;
                 _answer = rcvArray;
             }
-
             sentCommand(rcvCmd, rcvArray);
         }
     }
@@ -108,10 +106,10 @@ QByteArray AppCore::sentCommand(uint8_t cmd, QByteArray data, uint8_t addr)
         {
             _reqIsActive = true;
             size_t timeout = 0;
-            while(_reqIsActive && timeout < 1000)
+            while(_reqIsActive && timeout < TIMEOUT_MS)
             {
-                //wait(20);
-                timeout += 20;
+                pause(PAUSE_MS);
+                timeout += PAUSE_MS;
             }
 
             if (!_reqIsActive)
@@ -131,7 +129,6 @@ QByteArray AppCore::sentCommand(uint8_t cmd, QByteArray data, uint8_t addr)
         addToLogs("Cannot send message. No open connection.");
         emit sendToQml("Cannot send message. No open connection.");
     }
-
     return nullptr;
 }
 
@@ -165,29 +162,33 @@ void AppCore::connect_toDevice_clicked(QString name)
     emit sendToQml("Connecting to device.");
 }
 
-void AppCore::sendMessageToDevice(QString message)
+void AppCore::sendMessageToDevice(QString idCmd, QString message, qint16 type)
 {
     QByteArray sendArray;
-    uint8_t idCmd = 1;
-
-#if 1//ascii
-    sendArray = QByteArray::fromStdString(message.toStdString());
-#else
-    QStringList byteList = message.split(" ");
-#if 0//hex
-    for(QString byte : byteList)
+    switch (type)
     {
-        sendArray += byte.toUInt(nullptr, 16);
-    }
-#else//dec
-    for(QString byte : byteList)
+    case 0 : sendArray = QByteArray::fromStdString(message.toStdString()); break;
+    case 1 :
     {
-        sendArray += byte.toUInt(nullptr, 10);
+        QStringList byteList = message.split(" ");
+        for(QString byte : byteList)
+        {
+            sendArray += byte.toUInt(nullptr, 16);
+        }
     }
-#endif
-#endif
+        break;
+    case 2 :
+    {
+        QStringList byteList = message.split(" ");
+        for(QString byte : byteList)
+        {
+            sendArray += byte.toUInt(nullptr, 10);
+        }
+    }
+        break;
+    }
 
-    sentCommand(idCmd, sendArray);
+    sentCommand(idCmd.toInt(), sendArray);
 }
 
 void AppCore::on_pushButton_Disconnect_clicked()

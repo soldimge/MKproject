@@ -7,5 +7,8 @@
         <file>qtquickcontrols2.conf</file>
         <file>images/bluetooth_off.png</file>
         <file>images/bluetooth_on.png</file>
+        <file>images/back.png</file>
+        <file>images/drawer.png</file>
+        <file>images/menu.png</file>
     </qresource>
 </RCC>
