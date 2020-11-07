@@ -26,7 +26,7 @@ ApplicationWindow {
         contentItem: Rectangle {
             implicitWidth: 130
             implicitHeight: 40
-            color: "#121c2f"
+            color: "#273354"
             Button {
                 id: b1
                 flat: true
@@ -66,7 +66,14 @@ ApplicationWindow {
 
         ToolButton {
             id: toolButton
-            text: stackView.depth > 1 ? "\u25C0" : "\u2630"
+            Image {
+                id: toolButtonPic
+                anchors.fill: parent
+                anchors.centerIn: parent
+                fillMode: Image.PreserveAspectFit
+                source: stackView.depth > 1 ? "qrc:/images/back.png" : "qrc:/images/drawer.png"
+                scale: 0.55
+            }
             font.pointSize: Qt.application.font.pointSize * 1.6
             onClicked: {
                 if (stackView.depth > 1) {
@@ -293,6 +300,7 @@ ApplicationWindow {
     {
         button.onClicked: {
             textInput.text = ""
+            cmdInput.text = ""
         }
         button1.onClicked: {
             backEnd.sendMessageToDevice(cmdInput.text, textInput.text, tumbler.currentIndex)

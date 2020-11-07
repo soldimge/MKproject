@@ -5,7 +5,7 @@
 
 namespace
 {
-void addToLogs(QString message)
+    void addToLogs(QString message)
 {
 //    QString currentDateTime = QDateTime::currentDateTime().toString("yyyy.MM.dd hh:mm:ss");
     QString currentDateTime = QDateTime::currentDateTime().toString("hh:mm:ss");
@@ -43,7 +43,6 @@ AppCore::~AppCore()
 
 void AppCore::captureDeviceProperties(const QBluetoothDeviceInfo &device)
 {
-//    ui->comboBox_Devices->addItem(device.name() + "  >>>  " + device.address().toString());
     addToLogs("device found. name: " + device.name() + " and address: " + device.address().toString());
     addToLogs("device found...\n  name/address: " + device.name() + " / " + device.address().toString());
     _btdevices[device.name()] = device.address().toString();
@@ -90,7 +89,6 @@ void AppCore::sockectReadyToRead()
                 _reqIsActive = false;
                 _answer = rcvArray;
             }
-
             sentCommand(rcvCmd, rcvArray);
         }
     }
@@ -107,10 +105,10 @@ QByteArray AppCore::sentCommand(uint8_t cmd, QByteArray data, uint8_t addr)
         {
             _reqIsActive = true;
             size_t timeout = 0;
-            while(_reqIsActive && timeout < 1000)
+            while(_reqIsActive && timeout < TIMEOUT_MS)
             {
-                //wait(20);
-                timeout += 20;
+                pause(PAUSE_MS);
+                timeout += PAUSE_MS;
             }
 
             if (!_reqIsActive)
@@ -130,7 +128,6 @@ QByteArray AppCore::sentCommand(uint8_t cmd, QByteArray data, uint8_t addr)
         addToLogs("Cannot send message. No open connection.");
         emit sendToQml("Cannot send message. No open connection.");
     }
-
     return nullptr;
 }
 
@@ -189,22 +186,6 @@ void AppCore::sendMessageToDevice(QString idCmd, QString message, qint16 type)
     }
         break;
     }
-//#if 1//ascii
-//    sendArray = QByteArray::fromStdString(message.toStdString());
-//#else
-//    QStringList byteList = message.split(" ");
-//#if 0//hex
-//    for(QString byte : byteList)
-//    {
-//        sendArray += byte.toUInt(nullptr, 16);
-//    }
-//#else//dec
-//    for(QString byte : byteList)
-//    {
-//        sendArray += byte.toUInt(nullptr, 10);
-//    }
-//#endif
-//#endif
 
     sentCommand(idCmd.toInt(), sendArray);
 }

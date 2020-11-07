@@ -30,7 +30,7 @@ Page {
             anchors.bottom: parent.bottom
             anchors.top: parent.top
             font.pointSize: 16
-            text: "CMD"
+            text: "CMD:"
             color: "#d7d6d5"
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
@@ -191,32 +191,30 @@ Page {
         background: Rectangle
                 {
                     id: tbrect
-                    color: "#121c2f"
+                    color: "#273354"
                     border.width: 0
                 }
         model: ["ASCII", "HEX", "DEC"]
         delegate: ItemDelegate {
-                    width: tumbler.width
-                    contentItem: Text {
-                        text: modelData
-                        color: "#d7d6d5"
-                        font: tumbler.font
-                        elide: Text.ElideRight
-                        verticalAlignment: Text.AlignVCenter
-                        horizontalAlignment: Text.AlignHCenter
-                    }
-                    highlighted: tumbler.highlightedIndex === index
-                }
-
-                contentItem: Text {
-                    leftPadding: 20
-                    text: tumbler.displayText
-                    color: "#d7d6d5"
-                    font.pointSize: 16
-                    verticalAlignment: Text.AlignVCenter
-                    horizontalAlignment: Text.AlignHCenter
-                }
-
+                            width: tumbler.width
+                            contentItem: Text {
+                                text: modelData
+                                color: "#d7d6d5"
+                                font: tumbler.font
+                                elide: Text.ElideRight
+                                verticalAlignment: Text.AlignVCenter
+                                horizontalAlignment: Text.AlignHCenter
+                            }
+                            highlighted: tumbler.highlightedIndex === index
+                        }
+                        contentItem: Text {
+                            leftPadding: 20
+                            text: tumbler.displayText
+                            color: "#d7d6d5"
+                            font.pointSize: 16
+                            verticalAlignment: Text.AlignVCenter
+                            horizontalAlignment: Text.AlignHCenter
+                        }
     }
 
     Rectangle {
@@ -226,7 +224,7 @@ Page {
         anchors.topMargin: 1
         anchors.bottom: frame.bottom
         anchors.bottomMargin: 1
-        width: button1.width
+        width: button1.width *0.7
         color: "#d7d6d5"
         TextInput {
             id: cmdInput
@@ -237,4 +235,5 @@ Page {
             font.pointSize: 16
         }
     }
+
 }

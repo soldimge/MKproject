@@ -10,6 +10,9 @@
 
 #include "wakecore.h"
 
+constexpr qint32 PAUSE_MS{20};
+constexpr qint32 TIMEOUT_MS{1000};
+
 class AppCore : public QObject
 {
     Q_OBJECT

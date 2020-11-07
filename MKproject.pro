@@ -8,16 +8,32 @@ android: QT += androidextras
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-SOURCES = \
-    appcore.cpp \
-    main.cpp \
-    tablemodel.cpp \
-    wakecore.cpp
+win32 {
+    SOURCES = \
+        appcore.cpp \
+        main.cpp \
+        tablemodel.cpp \
+        wakecore.cpp
 
-HEADERS = \
-    appcore.h \
-    tablemodel.h \
-    wakecore.h
+    HEADERS = \
+        appcore.h \
+        tablemodel.h \
+        wakecore.h
+}
+android {
+    SOURCES = \
+        appcore.cpp \
+        main.cpp \
+        tablemodel.cpp \
+        wakecore.cpp \
+        keepawake.cpp
+
+    HEADERS = \
+        appcore.h \
+        tablemodel.h \
+        wakecore.h \
+        keepawake.h
+}
 
 RESOURCES += qml.qrc
 
@@ -34,4 +50,18 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 ANDROID_ABIS = armeabi-v7a arm64-v8a
 
-DISTFILES +=
+DISTFILES += \
+    android/AndroidManifest.xml \
+    android/build.gradle \
+    android/gradle.properties \
+    android/gradle/wrapper/gradle-wrapper.jar \
+    android/gradle/wrapper/gradle-wrapper.properties \
+    android/gradlew \
+    android/gradlew.bat \
+    android/res/drawable/icon.png \
+    android/res/drawable/splash.xml \
+    android/res/drawable/splash_image.png \
+    android/res/values/libs.xml
+
+ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
+android: include(C:/Users/by01.user/AppData/Local/Android/Sdk/android_openssl/openssl.pri)
