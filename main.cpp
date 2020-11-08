@@ -4,7 +4,6 @@
 #include <QtQml/QQmlContext>
 
 #include "appcore.h"
-#include "tablemodel.h"
 
 #ifdef Q_OS_ANDROID
 #include "keepawake.h"
@@ -21,8 +20,6 @@ int main(int argc, char *argv[])
 #endif
 
 //    QtAndroidTools::initializeQmlTools();
-
-//    qmlRegisterType<TableModel>("TableModel", 0, 1, "TableModel");
 
     AppCore backEnd;
 

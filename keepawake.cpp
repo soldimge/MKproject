@@ -1,6 +1,6 @@
 #include "keepawake.h"
 #include <QDebug>
-#include "jni.h"
+#include <jni.h>
 
 KeepAwake::KeepAwake()
 {

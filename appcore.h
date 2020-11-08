@@ -34,19 +34,21 @@ private slots:
     void sockectReadyToRead();
 
 signals:
-    void sendToQml(QString mes);
-    void addDevice(QString name);
-    void endOfSearch();
+    void sendToQml(QString mes) const;
+    void addDevice(QString name) const;
+    void endOfSearch() const;
+    void addLog(QString log) const;
 
 private:
     QBluetoothDeviceDiscoveryAgent *_discoveryAgent;
     QBluetoothSocket *_socket;
     std::map<QString, QString> _btdevices;
     WakeCore _wake;
-    bool _reqIsActive{0};
+    bool _reqIsActive;
     uint8_t _reqCmd;
     QByteArray _answer;
 
     QByteArray sentCommand(uint8_t cmd, QByteArray data, uint8_t addr = 0);
+    void addToLogs(QString);
 };
 #endif // MAINWINDOW_H
