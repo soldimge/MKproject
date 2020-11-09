@@ -6,7 +6,7 @@ Page {
     height: 560
 
     Label {
-        text: qsTr("You are on Page 2.")
+        text: qsTr("hoba")
         anchors.centerIn: parent
     }
 }

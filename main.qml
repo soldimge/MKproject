@@ -6,7 +6,8 @@ ApplicationWindow {
     width: 360
     height: 640
     visible: true
-    title: "LPapp"
+
+    title: qsTr("LaserApp")
 
     onClosing: {
         close.accepted = false
@@ -175,77 +176,7 @@ ApplicationWindow {
                 id: mit2
                 text: "Перейти на сайт"
             }
-            MenuItem {
-                id: mit4
-                Button {
-                    id: butMit4VK
-                    anchors.top: parent.top
-                    anchors.bottom: parent.bottom
-                    anchors.left: parent.left
-                    anchors.leftMargin: 3
-                    width: height*0.86
-                    flat: true
-                    highlighted: true
-                    Image {
-                        anchors.fill: parent
-                        anchors.centerIn: butMit4VK
-                        fillMode: Image.PreserveAspectFit
-                        source: "images/vk.png"
-                        scale: 0.5
-                    }
-                }
-                Button {
-                    id: butMit4IN
-                    anchors.top: parent.top
-                    anchors.bottom: parent.bottom
-                    anchors.left: butMit4VK.right
-                    anchors.leftMargin: 3
-                    width: height*0.86
-                    flat: true
-                    highlighted: true
-                    Image {
-                        anchors.fill: parent
-                        anchors.centerIn: butMit4IN
-                        fillMode: Image.PreserveAspectFit
-                        source: "images/instagram.png"
-                        scale: 0.5
-                    }
-                }
-                Button {
-                    id: butMit4FB
-                    anchors.top: parent.top
-                    anchors.bottom: parent.bottom
-                    anchors.left: butMit4IN.right
-                    anchors.leftMargin: 3
-                    width: height*0.86
-                    flat: true
-                    highlighted: true
-                    Image {
-                        anchors.fill: parent
-                        anchors.centerIn: butMit4FB
-                        fillMode: Image.PreserveAspectFit
-                        source: "images/fb.png"
-                        scale: 0.5
-                    }
-                }
-                Button {
-                    id: butMit4VB
-                    anchors.top: parent.top
-                    anchors.bottom: parent.bottom
-                    anchors.left: butMit4FB.right
-                    anchors.leftMargin: 3
-                    width: height*0.86
-                    flat: true
-                    highlighted: true
-                    Image {
-                        anchors.fill: parent
-                        anchors.centerIn: butMit4VB
-                        fillMode: Image.PreserveAspectFit
-                        source: "images/viber.png"
-                        scale: 0.5
-                    }
-                }
-            }
+
             MenuSeparator {
                         padding: 0
                         topPadding: 4
@@ -272,10 +203,10 @@ ApplicationWindow {
             anchors.fill: parent
 
             ItemDelegate {
-                text: qsTr("Logs")
+                text: qsTr("Page with logs")
                 width: parent.width
                 onClicked: {
-                    stackView.push("Page1Form.ui.qml")
+                    stackView.push("Logs.ui.qml")
                     drawer.close()
                 }
             }
@@ -287,32 +218,20 @@ ApplicationWindow {
                     drawer.close()
                 }
             }
+            ItemDelegate {
+                text: qsTr("3Page")
+                width: parent.width
+                onClicked: {
+                    stackView.push("3Page.qml")
+                    drawer.close()
+                }
+            }
         }
     }
 
     StackView {
         id: stackView
-        initialItem: "HomeForm.ui.qml"
+        initialItem: "HomeForm.qml"
         anchors.fill: parent
     }
-
-    HomeForm
-    {
-        button.onClicked: {
-            textInput.text = ""
-            cmdInput.text = ""
-        }
-        button1.onClicked: {
-            backEnd.sendMessageToDevice(cmdInput.text, textInput.text, tumbler.currentIndex)
-        }
-        comboBox.onActivated:
-        {
-            comboBox.displayText = comboBox.model[comboBox.currentIndex]
-            backEnd.connect_toDevice_clicked(comboBox.displayText);
-            toolButton2Pic.source = "qrc:/images/bluetooth_on.png";
-        }
-    }
-
-//    Page1Form {}
-//    Page2Form {}
 }

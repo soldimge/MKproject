@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+import Qt.labs.settings 1.0
 
 Page {
     property alias hpage: hpage
@@ -12,8 +13,13 @@ Page {
     property alias tumbler: tumbler
 
     width: 360
-    height: 640
+    height: 560
     id: hpage
+
+    Settings {
+           id: settings
+           property alias indxFromSettings: tumbler.currentIndex
+    }
 
     Frame {
         id: frame
@@ -40,7 +46,7 @@ Page {
     Rectangle {
         id: rectangle2
         anchors.centerIn: parent
-        height: rectangle.height
+        height: rectangle.height*2
         width: rectangle.width
         color: "#d7d6d5"
     }
@@ -64,6 +70,8 @@ Page {
         horizontalAlignment: Text.AlignHCenter
         text: ""
         font.pointSize: 16
+        wrapMode: Text.Wrap
+        clip: true
     }
 
     Text {
@@ -74,6 +82,8 @@ Page {
         color: "#000000"
         text: ""
         font.pointSize: 16
+        wrapMode: Text.Wrap
+        clip: true
     }
 
     Connections {
@@ -108,6 +118,11 @@ Page {
         flat: true
         highlighted: true
         font.pointSize: 16
+        onClicked:
+        {
+            textInput.text = ""
+            cmdInput.text = ""
+        }
     }
 
     Button {
@@ -119,6 +134,10 @@ Page {
         flat: true
         highlighted: true
         font.pointSize: 16
+        onClicked:
+            {
+                backEnd.sendMessageToDevice(cmdInput.text, textInput.text, tumbler.currentIndex)
+            }
     }
 
     ComboBox {
@@ -176,7 +195,14 @@ Page {
                         currentIndex: comboBox.highlightedIndex
                     }
                 }
+                onActivated:
+                    {
+                        comboBox.displayText = comboBox.model[comboBox.currentIndex]
+                        backEnd.connect_toDevice_clicked(comboBox.displayText);
+                        toolButton2Pic.source = "qrc:/images/bluetooth_on.png";
+                    }
     }
+
     ListModel {
         id: listModel
     }
@@ -215,6 +241,7 @@ Page {
                             verticalAlignment: Text.AlignVCenter
                             horizontalAlignment: Text.AlignHCenter
                         }
+        currentIndex: settings.indxFromSettings
     }
 
     Rectangle {

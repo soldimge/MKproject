@@ -34,10 +34,10 @@ private slots:
     void sockectReadyToRead();
 
 signals:
-    void sendToQml(QString mes) const;
-    void addDevice(QString name) const;
-    void endOfSearch() const;
-    void addLog(QString log) const;
+    void sendToQml(QString mes);
+    void addDevice(QString name);
+    void endOfSearch();
+    void addLog(QString log);
 
 private:
     QBluetoothDeviceDiscoveryAgent *_discoveryAgent;

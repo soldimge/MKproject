@@ -21,6 +21,10 @@ int main(int argc, char *argv[])
 
 //    QtAndroidTools::initializeQmlTools();
 
+    app.setOrganizationName("Laser");
+    app.setOrganizationDomain("soldimge@gmail.com");
+    app.setApplicationName("Laser Application");
+
     AppCore backEnd;
 
     QQmlApplicationEngine engine;
