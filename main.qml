@@ -7,12 +7,30 @@ ApplicationWindow {
     height: 640
     visible: true
 
+    property string logString
+
     title: qsTr("LaserApp")
 
     onClosing: {
         close.accepted = false
         dial.visible = true
-      }
+    }
+
+    ListModel {
+        id: logsListModel
+    }
+
+    Connections {
+        target: backEnd
+
+        onAddLog: {
+            logsListModel.append({"text" : log})
+            if (logString == "")
+                logString = log
+            else
+                logString = logString + "\n" + log
+        }
+    }
 
     Dialog {
         id: dial
@@ -109,12 +127,16 @@ ApplicationWindow {
                      console.log(toolButton2Pic.source);
                      toolButton2Pic.source = "qrc:/images/bluetooth_on.png"
                      backEnd.on_pushButton_Connect_clicked()
+                     busyIndicator.visible = true
+                     toolButton4.enabled = false;
                  }
                  else
                  {
                      console.log(toolButton2Pic.source);
                      toolButton2Pic.source = "qrc:/images/bluetooth_off.png"
                      backEnd.on_pushButton_Disconnect_clicked()
+                     busyIndicator.visible = false
+                     toolButton4.enabled = true;
                  }
              }
         }
@@ -124,14 +146,13 @@ ApplicationWindow {
                 anchors.right: toolButton2.left
                 anchors.rightMargin: toolButton2.height/6
 
-                Text {
-                    anchors.centerIn: toolButton4
-                    text: "scan"
-//                    bottomPadding: 5
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-                    font.pointSize: 10
-                    color: "#000000"
+                Image {
+                    id: toolButton4Pic
+                    anchors.fill: parent
+                    anchors.centerIn: parent
+                    fillMode: Image.PreserveAspectFit
+                    source: "qrc:/images/search.png"
+                    scale: 0.5
                 }
                 onClicked:
                 {
@@ -140,6 +161,12 @@ ApplicationWindow {
                     backEnd.on_pushButton_Search_clicked()
                     toolButton2.enabled = false;
                 }
+                hoverEnabled: true
+
+                ToolTip.delay: 1000
+                ToolTip.timeout: 5000
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Scan BT devices")
             }
 
 
@@ -175,6 +202,10 @@ ApplicationWindow {
             MenuItem {
                 id: mit2
                 text: "Перейти на сайт"
+                onClicked:
+                {
+                    Qt.openUrlExternally("https://github.com/soldimge/MKproject")
+                }
             }
 
             MenuSeparator {
@@ -206,7 +237,7 @@ ApplicationWindow {
                 text: qsTr("Page with logs")
                 width: parent.width
                 onClicked: {
-                    stackView.push("Logs.ui.qml")
+                    stackView.push("Logs.qml")
                     drawer.close()
                 }
             }

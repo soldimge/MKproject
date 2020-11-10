@@ -2,7 +2,7 @@
     <qresource prefix="/">
         <file>main.qml</file>
         <file>HomeForm.qml</file>
-        <file>Logs.ui.qml</file>
+        <file>Logs.qml</file>
         <file>Page2Form.ui.qml</file>
         <file>qtquickcontrols2.conf</file>
         <file>images/bluetooth_off.png</file>
@@ -11,5 +11,6 @@
         <file>images/drawer.png</file>
         <file>images/menu.png</file>
         <file>3Page.qml</file>
+        <file>images/search.png</file>
     </qresource>
 </RCC>

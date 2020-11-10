@@ -1,4 +1,4 @@
-QT += qml quick bluetooth
+QT += qml quick bluetooth gui
 
 CONFIG += c++17
 

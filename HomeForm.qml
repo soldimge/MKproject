@@ -17,8 +17,8 @@ Page {
     id: hpage
 
     Settings {
-           id: settings
-           property alias indxFromSettings: tumbler.currentIndex
+        id: settings
+        property alias indxFromSettings: tumbler.currentIndex
     }
 
     Frame {
@@ -91,9 +91,7 @@ Page {
 
                 onSendToQml: {
                     outText.text = mes
-                    if (outText.text == "Connecting to device.")
-                        busyIndicator.visible = true
-                    else if (outText.text == "connected" || outText.text == "Disconnected")
+                    if (mes == "Connected")
                         busyIndicator.visible = false
                 }                
                 onAddDevice: {
@@ -105,7 +103,7 @@ Page {
                     toolButton4.enabled = true
                     busyIndicator.visible = false
                     toolButton2.enabled = true
-//                    comboBox.popup.open()
+                    outText.text = "Search finished"
                 }
     }
 
@@ -123,6 +121,12 @@ Page {
             textInput.text = ""
             cmdInput.text = ""
         }
+        hoverEnabled: true
+
+        ToolTip.delay: 1000
+        ToolTip.timeout: 5000
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("Clear all fields")
     }
 
     Button {
@@ -135,9 +139,15 @@ Page {
         highlighted: true
         font.pointSize: 16
         onClicked:
-            {
-                backEnd.sendMessageToDevice(cmdInput.text, textInput.text, tumbler.currentIndex)
-            }
+        {
+            backEnd.sendMessageToDevice(cmdInput.text, textInput.text, tumbler.currentIndex)
+        }
+        hoverEnabled: true
+
+        ToolTip.delay: 1000
+        ToolTip.timeout: 5000
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("Send command to device")
     }
 
     ComboBox {
@@ -147,10 +157,8 @@ Page {
         height: rectangle.height*2
         anchors.top: rectangle2.bottom
         anchors.topMargin: height
-//        anchors.bottom: parent.bottom
-//        anchors.bottomMargin: height
-        anchors.left: parent.left
-        anchors.right: parent.right
+        anchors.left: rectangle.left
+        anchors.right: rectangle.right
         flat: true
         currentIndex: -1
         displayText: "Choose device"
@@ -183,10 +191,9 @@ Page {
                 popup: Popup {
                     dim: true
                     width: comboBox.width
-                    x: hpage.width - width
+                    x: comboBox.width - width
                     y: comboBox.height - height
                     leftPadding: 0
-                    implicitHeight: listModel.count * comboBox.height * 0.6 > hpage.height/2 ? hpage.height/2 : listModel.count * comboBox.height * 0.6
                     padding: 0
                     contentItem: ListView {
                         clip: true
@@ -195,12 +202,12 @@ Page {
                         currentIndex: comboBox.highlightedIndex
                     }
                 }
-                onActivated:
-                    {
-                        comboBox.displayText = comboBox.model[comboBox.currentIndex]
-                        backEnd.connect_toDevice_clicked(comboBox.displayText);
-                        toolButton2Pic.source = "qrc:/images/bluetooth_on.png";
-                    }
+        onActivated:
+        {
+            comboBox.displayText = comboBox.model[comboBox.currentIndex]
+            backEnd.connect_toDevice_clicked(comboBox.displayText);
+            toolButton2Pic.source = "qrc:/images/bluetooth_on.png";
+        }
     }
 
     ListModel {
@@ -262,5 +269,5 @@ Page {
             font.pointSize: 16
         }
     }
-
 }
+

@@ -3,7 +3,8 @@
 
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QBluetoothSocket>
-
+#include <QClipboard>
+#include <QGuiApplication>
 #include <QCoreApplication>
 #include <QTime>
 #include <map>
@@ -25,6 +26,7 @@ public:
     Q_INVOKABLE void connect_toDevice_clicked(QString);
     Q_INVOKABLE void on_pushButton_Disconnect_clicked();
     Q_INVOKABLE void sendMessageToDevice(QString, QString, qint16);
+    Q_INVOKABLE void copyToBuffer(QString);
 
 private slots:
     void captureDeviceProperties(const QBluetoothDeviceInfo &device);
@@ -47,6 +49,7 @@ private:
     bool _reqIsActive;
     uint8_t _reqCmd;
     QByteArray _answer;
+    QClipboard* _clipboard;
 
     QByteArray sentCommand(uint8_t cmd, QByteArray data, uint8_t addr = 0);
     void addToLogs(QString);

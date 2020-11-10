@@ -15,8 +15,9 @@ void pause(qint32 ms)
 }
 }
 
-AppCore::AppCore(QObject *parent) : QObject(parent),
-                                    _reqIsActive{0}
+AppCore::AppCore(QObject *parent) : QObject{parent},
+                                    _reqIsActive{0},
+                                    _clipboard{QGuiApplication::clipboard()}
 {
     this->_discoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
     this->_socket = new QBluetoothSocket(QBluetoothServiceInfo::RfcommProtocol, this);
@@ -35,6 +36,11 @@ AppCore::~AppCore()
     delete _discoveryAgent;
 }
 
+void AppCore::copyToBuffer(QString text)
+{
+    _clipboard->setText(text);
+}
+
 void AppCore::addToLogs(QString message)
 {
 //    QString currentDateTime = QDateTime::currentDateTime().toString("yyyy.MM.dd hh:mm:ss");
@@ -50,7 +56,7 @@ void AppCore::captureDeviceProperties(const QBluetoothDeviceInfo &device)
     if(temp != device)
     {
 //        addToLogs("device found\n name: " + device.name() + "\n and address: " + device.address().toString());
-        addToLogs("device found...\n name/address: " + device.name() + " / " + device.address().toString());
+        addToLogs("device found, name/address:\n " + device.name() + " / " + device.address().toString());
         _btdevices[device.name()] = device.address().toString();
     }
     temp = device;
@@ -69,8 +75,8 @@ void AppCore::searchFinished()
 
 void AppCore::connectionEstablished()
 {
-    addToLogs("connected");
-    emit sendToQml("connected");
+    addToLogs("Connected");
+    emit sendToQml("Connected");
 }
 
 void AppCore::connectionInterrupted()
@@ -165,7 +171,7 @@ void AppCore::connect_toDevice_clicked(QString name)
     emit sendToQml("Initialising connection.");
     static const QString serviceUuid(QStringLiteral("00001101-0000-1000-8000-00805F9B34FB"));
     this->_socket->connectToService(QBluetoothAddress(_btdevices[name]), QBluetoothUuid(serviceUuid), QIODevice::ReadWrite);
-    addToLogs("Connecting to device/address:" + name + " / " + _btdevices[name]);
+    addToLogs("Connecting to device/address:\n" + name + " / " + _btdevices[name]);
     emit sendToQml("Connecting to device.");
 }
 
