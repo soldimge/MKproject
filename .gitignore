@@ -35,7 +35,7 @@
 *.log
 
 # QT files
-*.user
+*.user*
 
 # Makefiles
 Makefile*
