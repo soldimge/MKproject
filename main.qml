@@ -6,12 +6,31 @@ ApplicationWindow {
     width: 360
     height: 640
     visible: true
-    title: "LPapp"
+
+    property string logString
+
+    title: qsTr("LaserApp")
 
     onClosing: {
         close.accepted = false
         dial.visible = true
-      }
+    }
+
+    ListModel {
+        id: logsListModel
+    }
+
+    Connections {
+        target: backEnd
+
+        onAddLog: {
+            logsListModel.append({"text" : log})
+            if (logString == "")
+                logString = log
+            else
+                logString = logString + "\n" + log
+        }
+    }
 
     Dialog {
         id: dial
@@ -108,12 +127,16 @@ ApplicationWindow {
                      console.log(toolButton2Pic.source);
                      toolButton2Pic.source = "qrc:/images/bluetooth_on.png"
                      backEnd.on_pushButton_Connect_clicked()
+                     busyIndicator.visible = true
+                     toolButton4.enabled = false;
                  }
                  else
                  {
                      console.log(toolButton2Pic.source);
                      toolButton2Pic.source = "qrc:/images/bluetooth_off.png"
                      backEnd.on_pushButton_Disconnect_clicked()
+                     busyIndicator.visible = false
+                     toolButton4.enabled = true;
                  }
              }
         }
@@ -123,14 +146,13 @@ ApplicationWindow {
                 anchors.right: toolButton2.left
                 anchors.rightMargin: toolButton2.height/6
 
-                Text {
-                    anchors.centerIn: toolButton4
-                    text: "scan"
-//                    bottomPadding: 5
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-                    font.pointSize: 10
-                    color: "#000000"
+                Image {
+                    id: toolButton4Pic
+                    anchors.fill: parent
+                    anchors.centerIn: parent
+                    fillMode: Image.PreserveAspectFit
+                    source: "qrc:/images/search.png"
+                    scale: 0.5
                 }
                 onClicked:
                 {
@@ -139,6 +161,12 @@ ApplicationWindow {
                     backEnd.on_pushButton_Search_clicked()
                     toolButton2.enabled = false;
                 }
+                hoverEnabled: true
+
+                ToolTip.delay: 1000
+                ToolTip.timeout: 5000
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Scan BT devices")
             }
 
 
@@ -174,78 +202,12 @@ ApplicationWindow {
             MenuItem {
                 id: mit2
                 text: "Перейти на сайт"
-            }
-            MenuItem {
-                id: mit4
-                Button {
-                    id: butMit4VK
-                    anchors.top: parent.top
-                    anchors.bottom: parent.bottom
-                    anchors.left: parent.left
-                    anchors.leftMargin: 3
-                    width: height*0.86
-                    flat: true
-                    highlighted: true
-                    Image {
-                        anchors.fill: parent
-                        anchors.centerIn: butMit4VK
-                        fillMode: Image.PreserveAspectFit
-                        source: "images/vk.png"
-                        scale: 0.5
-                    }
-                }
-                Button {
-                    id: butMit4IN
-                    anchors.top: parent.top
-                    anchors.bottom: parent.bottom
-                    anchors.left: butMit4VK.right
-                    anchors.leftMargin: 3
-                    width: height*0.86
-                    flat: true
-                    highlighted: true
-                    Image {
-                        anchors.fill: parent
-                        anchors.centerIn: butMit4IN
-                        fillMode: Image.PreserveAspectFit
-                        source: "images/instagram.png"
-                        scale: 0.5
-                    }
-                }
-                Button {
-                    id: butMit4FB
-                    anchors.top: parent.top
-                    anchors.bottom: parent.bottom
-                    anchors.left: butMit4IN.right
-                    anchors.leftMargin: 3
-                    width: height*0.86
-                    flat: true
-                    highlighted: true
-                    Image {
-                        anchors.fill: parent
-                        anchors.centerIn: butMit4FB
-                        fillMode: Image.PreserveAspectFit
-                        source: "images/fb.png"
-                        scale: 0.5
-                    }
-                }
-                Button {
-                    id: butMit4VB
-                    anchors.top: parent.top
-                    anchors.bottom: parent.bottom
-                    anchors.left: butMit4FB.right
-                    anchors.leftMargin: 3
-                    width: height*0.86
-                    flat: true
-                    highlighted: true
-                    Image {
-                        anchors.fill: parent
-                        anchors.centerIn: butMit4VB
-                        fillMode: Image.PreserveAspectFit
-                        source: "images/viber.png"
-                        scale: 0.5
-                    }
+                onClicked:
+                {
+                    Qt.openUrlExternally("https://github.com/soldimge/MKproject")
                 }
             }
+
             MenuSeparator {
                         padding: 0
                         topPadding: 4
@@ -272,10 +234,10 @@ ApplicationWindow {
             anchors.fill: parent
 
             ItemDelegate {
-                text: qsTr("Logs")
+                text: qsTr("Page with logs")
                 width: parent.width
                 onClicked: {
-                    stackView.push("Page1Form.ui.qml")
+                    stackView.push("Logs.qml")
                     drawer.close()
                 }
             }
@@ -287,32 +249,20 @@ ApplicationWindow {
                     drawer.close()
                 }
             }
+            ItemDelegate {
+                text: qsTr("3Page")
+                width: parent.width
+                onClicked: {
+                    stackView.push("3Page.qml")
+                    drawer.close()
+                }
+            }
         }
     }
 
     StackView {
         id: stackView
-        initialItem: "HomeForm.ui.qml"
+        initialItem: "HomeForm.qml"
         anchors.fill: parent
     }
-
-    HomeForm
-    {
-        button.onClicked: {
-            textInput.text = ""
-            cmdInput.text = ""
-        }
-        button1.onClicked: {
-            backEnd.sendMessageToDevice(cmdInput.text, textInput.text, tumbler.currentIndex)
-        }
-        comboBox.onActivated:
-        {
-            comboBox.displayText = comboBox.model[comboBox.currentIndex]
-            backEnd.connect_toDevice_clicked(comboBox.displayText);
-            toolButton2Pic.source = "qrc:/images/bluetooth_on.png";
-        }
-    }
-
-//    Page1Form {}
-//    Page2Form {}
 }

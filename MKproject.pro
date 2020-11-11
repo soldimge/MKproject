@@ -1,4 +1,4 @@
-QT += qml quick bluetooth
+QT += qml quick bluetooth gui
 
 CONFIG += c++17
 
@@ -12,25 +12,21 @@ win32 {
     SOURCES = \
         appcore.cpp \
         main.cpp \
-        tablemodel.cpp \
         wakecore.cpp
 
     HEADERS = \
         appcore.h \
-        tablemodel.h \
         wakecore.h
 }
 android {
     SOURCES = \
         appcore.cpp \
         main.cpp \
-        tablemodel.cpp \
         wakecore.cpp \
         keepawake.cpp
 
     HEADERS = \
         appcore.h \
-        tablemodel.h \
         wakecore.h \
         keepawake.h
 }

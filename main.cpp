@@ -4,7 +4,6 @@
 #include <QtQml/QQmlContext>
 
 #include "appcore.h"
-#include "tablemodel.h"
 
 #ifdef Q_OS_ANDROID
 #include "keepawake.h"
@@ -22,7 +21,9 @@ int main(int argc, char *argv[])
 
 //    QtAndroidTools::initializeQmlTools();
 
-//    qmlRegisterType<TableModel>("TableModel", 0, 1, "TableModel");
+    app.setOrganizationName("Laser");
+    app.setOrganizationDomain("soldimge@gmail.com");
+    app.setApplicationName("Laser Application");
 
     AppCore backEnd;
 
