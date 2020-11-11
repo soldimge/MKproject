@@ -132,7 +132,14 @@ ParseResult WakeCore::byteParse(uint8_t rcvByte)
             _rcvSize = rcvByte;
             do_crc8(rcvByte, &_rcvCrc);
             _rcvDataPtr = 0;
-            _rcvState = RcvState::RCV_DATA;
+            if (_rcvSize)
+            {
+                _rcvState = RcvState::RCV_DATA;
+            }
+            else
+            {
+                _rcvState = RcvState::RCV_CRC;
+            }
         }
         break;
     case RcvState::RCV_DATA:
