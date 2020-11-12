@@ -11,6 +11,7 @@ Page {
     property alias comboBox: comboBox
     property alias cmdInput: cmdInput
     property alias tumbler: tumbler
+    property alias settings: settings
 
     width: 360
     height: 560
@@ -19,6 +20,7 @@ Page {
     Settings {
         id: settings
         property alias indxFromSettings: tumbler.currentIndex
+//        property alias tumblerIndxFromSettings: switch1.position
     }
 
     Frame {
@@ -249,6 +251,12 @@ Page {
                             horizontalAlignment: Text.AlignHCenter
                         }
         currentIndex: settings.indxFromSettings
+        onActivated:
+        {
+            tumbler.displayText = tumbler.model[tumbler.currentIndex]
+            backEnd.setAppSettings(ms, tumbler.currentIndex)
+            tumblerIndx = tumbler.currentIndex
+        }
     }
 
     Rectangle {

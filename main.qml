@@ -8,6 +8,8 @@ ApplicationWindow {
     visible: true
 
     property string logString
+    property bool ms : switch1.position
+    property int tumblerIndx
 
     title: qsTr("LaserApp")
 
@@ -119,7 +121,7 @@ ApplicationWindow {
                  scale: 0.55
              }
              anchors.right: toolButton3.left
-             anchors.rightMargin: 10
+             anchors.rightMargin: toolButton2.height/6
              flat: true
              onClicked: {
                  if (toolButton2Pic.source == "qrc:/images/bluetooth_off.png")
@@ -129,6 +131,7 @@ ApplicationWindow {
                      backEnd.on_pushButton_Connect_clicked()
                      busyIndicator.visible = true
                      toolButton4.enabled = false;
+                     backEnd.setAppSettings(ms, tumblerIndx)
                  }
                  else
                  {
@@ -160,6 +163,7 @@ ApplicationWindow {
                     busyIndicator.visible = true
                     backEnd.on_pushButton_Search_clicked()
                     toolButton2.enabled = false;
+                    backEnd.setAppSettings(ms, tumblerIndx)
                 }
                 hoverEnabled: true
 
@@ -201,25 +205,24 @@ ApplicationWindow {
 
             MenuItem {
                 id: mit2
-                text: "Перейти на сайт"
+                text: "Open website"
                 onClicked:
                 {
                     Qt.openUrlExternally("https://github.com/soldimge/MKproject")
                 }
             }
-
             MenuSeparator {
-                        padding: 0
-                        topPadding: 4
-                        bottomPadding: 4
-                        contentItem: Rectangle {
-                        implicitWidth: 120
-                        implicitHeight: 1
-                        color: "#0b0d12"
-                        }
+                padding: 0
+                topPadding: 4
+                bottomPadding: 4
+                contentItem: Rectangle {
+                    implicitWidth: 120
+                    implicitHeight: 1
+                    color: "#0b0d12"
+                }
             }
             MenuItem {
-                text: "Выход"
+                text: "Exit"
                 onClicked: Qt.callLater(Qt.quit)
             }
         }
@@ -250,10 +253,10 @@ ApplicationWindow {
                 }
             }
             ItemDelegate {
-                text: qsTr("3Page")
+                text: qsTr("AppSettings")
                 width: parent.width
                 onClicked: {
-                    stackView.push("3Page.qml")
+                    stackView.push("AppSettings.qml")
                     drawer.close()
                 }
             }

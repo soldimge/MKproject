@@ -13,11 +13,66 @@ void pause(qint32 ms)
         QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
     }
 }
+
+QString convertByteToString(uint8_t byte, CmdType messageType)
+{
+    QString str{};
+
+    switch (messageType)
+    {
+    case CmdType::ASCII:
+        str = byte;
+        break;
+    case CmdType::HEX:
+        str = QString::number(byte, 16);
+        break;
+    case CmdType::DEC:
+        str = QString::number(byte, 10);
+        break;
+    }
+
+    return str;
+}
+
+QString convertBytesToString(QByteArray array, CmdType messageType)
+{
+    QString str{};
+
+    switch (messageType)
+    {
+    case CmdType::ASCII:
+        str = QString::fromStdString(array.toStdString());
+        break;
+
+    case CmdType::HEX:
+        for (auto byte: array)
+        {
+            str += QString::number(byte, 16) + " ";
+        }
+        break;
+
+    case CmdType::DEC:
+        for (auto byte: array)
+        {
+            str += QString::number(byte, 10) + " ";
+        }
+        break;
+    }
+
+    if (str.length())
+    {
+        str = str.left(str.lastIndexOf(" "));
+    }
+
+    return str;
+}
 }
 
 AppCore::AppCore(QObject *parent) : QObject{parent},
                                     _reqIsActive{0},
-                                    _clipboard{QGuiApplication::clipboard()}
+                                    _clipboard{QGuiApplication::clipboard()},
+                                    _msInLogs{false},
+                                    _cmdType{CmdType::ASCII}
 {
     this->_discoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
     this->_socket = new QBluetoothSocket(QBluetoothServiceInfo::RfcommProtocol, this);
@@ -41,10 +96,20 @@ void AppCore::copyToBuffer(QString text)
     _clipboard->setText(text);
 }
 
+void AppCore::setAppSettings(bool ms, qint16 cmdTypeFromQml)
+{
+    _msInLogs = ms;
+    _cmdType = static_cast<CmdType>(cmdTypeFromQml);
+}
+
 void AppCore::addToLogs(QString message)
 {
+    QString currentDateTime;
 //    QString currentDateTime = QDateTime::currentDateTime().toString("yyyy.MM.dd hh:mm:ss");
-    QString currentDateTime = QDateTime::currentDateTime().toString("hh:mm:ss");
+    if(_msInLogs)
+        currentDateTime = QDateTime::currentDateTime().toString("hh:mm:ss:ms");
+    else
+        currentDateTime = QDateTime::currentDateTime().toString("hh:mm:ss");
     qDebug() << (currentDateTime + ":   " + message);
     emit addLog(currentDateTime + ":   " + message);
 }
@@ -56,7 +121,7 @@ void AppCore::captureDeviceProperties(const QBluetoothDeviceInfo &device)
     if(temp != device)
     {
 //        addToLogs("device found\n name: " + device.name() + "\n and address: " + device.address().toString());
-        addToLogs("device found, name/address:\n " + device.name() + " / " + device.address().toString());
+        addToLogs("device found, name/address:\n" + device.name() + " / " + device.address().toString());
         _btdevices[device.name()] = device.address().toString();
     }
     temp = device;
@@ -96,25 +161,27 @@ void AppCore::sockectReadyToRead()
             uint8_t rcvCmd = _wake.getRcvCmd();
             QByteArray rcvArray = QByteArray((char*)_wake.getRcvData(), _wake.getRcvSize());
 
-            addToLogs("CMD " + QString(rcvCmd) + ": " + rcvArray);
+            addToLogs("CMD " + convertByteToString(rcvCmd, CmdType::DEC) + ": " + convertBytesToString(rcvArray, _cmdType));
+            emit sendToQml("recieved: CMD " + convertByteToString(rcvCmd, CmdType::DEC) + ": " + convertBytesToString(rcvArray, _cmdType));
 
             if (_reqIsActive && _reqCmd == rcvCmd)
             {
                 _reqIsActive = false;
                 _answer = rcvArray;
             }
-            sentCommand(rcvCmd, rcvArray);
+            sendCommand(rcvCmd, rcvArray);
         }
     }
 }
 
-QByteArray AppCore::sentCommand(uint8_t cmd, QByteArray data, uint8_t addr)
+QByteArray AppCore::sendCommand(uint8_t cmd, QByteArray data, uint8_t addr)
 {
     size_t sendSize = _wake.dataPrepare(cmd, (uint8_t*)data.data(), data.length(), addr);
 
     if (this->_socket->isOpen() && this->_socket->isWritable())
     {
-        addToLogs("Send CMD " + QString(cmd) + ": " + QString(data));
+        addToLogs("Send CMD " + convertByteToString(cmd, CmdType::DEC) + ": " + convertBytesToString(data, _cmdType));
+        emit sendToQml("sended: CMD " + convertByteToString(cmd, CmdType::DEC) + ": " + convertBytesToString(data, _cmdType));
 
         if (this->_socket->write((char*)_wake.getSndData(), sendSize) == (qint64)sendSize)
         {
@@ -179,10 +246,13 @@ void AppCore::connect_toDevice_clicked(QString name)
 void AppCore::sendMessageToDevice(QString idCmd, QString message, qint16 messageType)
 {
     QByteArray sendArray;
-    switch (messageType)
+    switch (static_cast<CmdType>(messageType))
     {
-    case 0 : sendArray = QByteArray::fromStdString(message.toStdString()); break;
-    case 1 :
+    case CmdType::ASCII:
+        sendArray = QByteArray::fromStdString(message.toStdString());
+        break;
+
+    case CmdType::HEX:
     {
         QStringList byteList = message.split(" ");
         for(QString byte : byteList)
@@ -191,7 +261,8 @@ void AppCore::sendMessageToDevice(QString idCmd, QString message, qint16 message
         }
     }
         break;
-    case 2 :
+
+    case CmdType::DEC:
     {
         QStringList byteList = message.split(" ");
         for(QString byte : byteList)
@@ -202,7 +273,7 @@ void AppCore::sendMessageToDevice(QString idCmd, QString message, qint16 message
         break;
     }
 
-    sentCommand(idCmd.toInt(), sendArray);
+    sendCommand(idCmd.toInt(), sendArray);
 }
 
 void AppCore::on_pushButton_Disconnect_clicked()

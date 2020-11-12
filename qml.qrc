@@ -10,7 +10,7 @@
         <file>images/back.png</file>
         <file>images/drawer.png</file>
         <file>images/menu.png</file>
-        <file>3Page.qml</file>
+        <file>AppSettings.qml</file>
         <file>images/search.png</file>
     </qresource>
 </RCC>

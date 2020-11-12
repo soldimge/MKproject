@@ -1,5 +1,4 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#pragma once
 
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QBluetoothSocket>
@@ -14,6 +13,13 @@
 constexpr qint32 PAUSE_MS{20};
 constexpr qint32 TIMEOUT_MS{1000};
 
+enum class CmdType
+{
+    ASCII,
+    HEX,
+    DEC
+};
+
 class AppCore : public QObject
 {
     Q_OBJECT
@@ -27,6 +33,7 @@ public:
     Q_INVOKABLE void on_pushButton_Disconnect_clicked();
     Q_INVOKABLE void sendMessageToDevice(QString, QString, qint16);
     Q_INVOKABLE void copyToBuffer(QString);
+    Q_INVOKABLE void setAppSettings(bool, qint16);
 
 private slots:
     void captureDeviceProperties(const QBluetoothDeviceInfo &device);
@@ -50,8 +57,10 @@ private:
     uint8_t _reqCmd;
     QByteArray _answer;
     QClipboard* _clipboard;
+    bool _msInLogs;
+    CmdType _cmdType;
 
-    QByteArray sentCommand(uint8_t cmd, QByteArray data, uint8_t addr = 0);
+    QByteArray sendCommand(uint8_t cmd, QByteArray data, uint8_t addr = 0);
     void addToLogs(QString);
 };
-#endif // MAINWINDOW_H
+
