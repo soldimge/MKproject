@@ -46,6 +46,7 @@ Page {
         onClicked:
         {
             logsListModel.clear()
+            logString = ""
         }
         hoverEnabled: true
 

@@ -8,8 +8,9 @@ ApplicationWindow {
     visible: true
 
     property string logString
-    property bool ms : switch1.position
+    property int ms : 0
     property int tumblerIndx
+    property int tumblerIndx2
 
     title: qsTr("LaserApp")
 
@@ -22,6 +23,10 @@ ApplicationWindow {
         id: logsListModel
     }
 
+    ListModel {
+        id: outTextModel
+    }
+
     Connections {
         target: backEnd
 
@@ -31,6 +36,16 @@ ApplicationWindow {
                 logString = log
             else
                 logString = logString + "\n" + log
+        }
+
+        onAddMes: {
+            outTextModel.append({"text" : message})
+        }
+
+        onSendToQml: {
+            if (mes == "Connected")
+                busyIndicator.visible = false
+            outText.text = mes
         }
     }
 
@@ -84,6 +99,23 @@ ApplicationWindow {
     header: ToolBar {
         id: toolBar
         contentHeight: toolButton.implicitHeight
+
+        Text {
+            id: outText
+            anchors.right: toolButton4.left
+            anchors.rightMargin: toolButton4.height/6
+            anchors.left: toolButton.right
+            anchors.leftMargin: toolButton4.height/6
+            anchors.bottom: parent.bottom
+            anchors.top: parent.top
+            verticalAlignment: Text.AlignVCenter
+            horizontalAlignment: Text.AlignHCenter
+            color: "#000000"
+            text: ""
+            font.pointSize: 11
+            wrapMode: Text.Wrap
+            clip: true
+        }
 
         ToolButton {
             id: toolButton
@@ -161,9 +193,9 @@ ApplicationWindow {
                 {
                     toolButton4.enabled = false;
                     busyIndicator.visible = true
-                    backEnd.on_pushButton_Search_clicked()
-                    toolButton2.enabled = false;
                     backEnd.setAppSettings(ms, tumblerIndx)
+                    backEnd.on_pushButton_Search_clicked()
+                    toolButton2.enabled = false;             
                 }
                 hoverEnabled: true
 

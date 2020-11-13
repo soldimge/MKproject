@@ -1,32 +1,38 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import Qt.labs.settings 1.0
+import QtQuick.Layouts 1.15
 
 Page {
     width: 360
     height: 560
 
     property alias appSetSettings: appSetSettings
-    property alias switch1: switch1
 
     Settings {
         id: appSetSettings
-        property bool tumblerIndxFromSettings: false
+        property alias checkStateFromSettings: msCS.checkState
     }
 
-    Switch {
-        id: switch1
+    GroupBox {
+        title: qsTr("Settings")
         anchors.top: parent.top
         anchors.topMargin: 50
         anchors.left: parent.left
         anchors.leftMargin: 50
-        text: qsTr("Show ms in logs")
-        onClicked: {
-            appSetSettings.tumblerIndxFromSettings = !appSetSettings.tumblerIndxFromSettings
-            ms = appSetSettings.tumblerIndxFromSettings
-            backEnd.setAppSettings(appSetSettings.tumblerIndxFromSettings, tumblerIndx)
+        ColumnLayout {
+            CheckBox
+            {
+                id: msCS
+                text: qsTr("Show ms in logs")
+                checkState: appSetSettings.checkStateFromSettings
+                onCheckStateChanged:
+                {
+                    backEnd.setAppSettings(msCS.checkState, tumblerIndx)
+                    ms = msCS.checkState
+                }
+            }
         }
-        position: appSetSettings.tumblerIndxFromSettings
     }
 }
 

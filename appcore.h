@@ -47,6 +47,7 @@ signals:
     void addDevice(QString name);
     void endOfSearch();
     void addLog(QString log);
+    void addMes(QString message);
 
 private:
     QBluetoothDeviceDiscoveryAgent *_discoveryAgent;

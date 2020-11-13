@@ -107,7 +107,7 @@ void AppCore::addToLogs(QString message)
     QString currentDateTime;
 //    QString currentDateTime = QDateTime::currentDateTime().toString("yyyy.MM.dd hh:mm:ss");
     if(_msInLogs)
-        currentDateTime = QDateTime::currentDateTime().toString("hh:mm:ss:ms");
+        currentDateTime = QDateTime::currentDateTime().toString("hh:mm:ss:zzz");
     else
         currentDateTime = QDateTime::currentDateTime().toString("hh:mm:ss");
     qDebug() << (currentDateTime + ":   " + message);
@@ -129,7 +129,7 @@ void AppCore::captureDeviceProperties(const QBluetoothDeviceInfo &device)
 
 void AppCore::searchFinished()
 {
-    addToLogs("Search finished.");
+    addToLogs("Search finished");
     emit endOfSearch();
     for(auto i : _btdevices)
     {
@@ -162,8 +162,8 @@ void AppCore::sockectReadyToRead()
             QByteArray rcvArray = QByteArray((char*)_wake.getRcvData(), _wake.getRcvSize());
 
             addToLogs("CMD " + convertByteToString(rcvCmd, CmdType::DEC) + ": " + convertBytesToString(rcvArray, _cmdType));
-            emit sendToQml("recieved: CMD " + convertByteToString(rcvCmd, CmdType::DEC) + ": " + convertBytesToString(rcvArray, _cmdType));
-
+//            emit sendToQml("RX " + convertByteToString(rcvCmd, CmdType::DEC) + ": " + convertBytesToString(rcvArray, _cmdType));
+            emit addMes("RX " + convertByteToString(rcvCmd, CmdType::DEC) + ": " + convertBytesToString(rcvArray, _cmdType));
             if (_reqIsActive && _reqCmd == rcvCmd)
             {
                 _reqIsActive = false;
@@ -181,8 +181,8 @@ QByteArray AppCore::sendCommand(uint8_t cmd, QByteArray data, uint8_t addr)
     if (this->_socket->isOpen() && this->_socket->isWritable())
     {
         addToLogs("Send CMD " + convertByteToString(cmd, CmdType::DEC) + ": " + convertBytesToString(data, _cmdType));
-        emit sendToQml("sended: CMD " + convertByteToString(cmd, CmdType::DEC) + ": " + convertBytesToString(data, _cmdType));
-
+//        emit sendToQml("TX " + convertByteToString(cmd, CmdType::DEC) + ": " + convertBytesToString(data, _cmdType));
+        emit addMes("TX " + convertByteToString(cmd, CmdType::DEC) + ": " + convertBytesToString(data, _cmdType));
         if (this->_socket->write((char*)_wake.getSndData(), sendSize) == (qint64)sendSize)
         {
             _reqIsActive = true;
@@ -207,8 +207,8 @@ QByteArray AppCore::sendCommand(uint8_t cmd, QByteArray data, uint8_t addr)
     }
     else
     {
-        addToLogs("Cannot send message. No open connection.");
-        emit sendToQml("Cannot send message. No open connection.");
+        addToLogs("Cannot send message. No open connection");
+        emit sendToQml("Error:\nNo open connection");
     }
     return nullptr;
 }
@@ -224,23 +224,23 @@ void AppCore::on_pushButton_Search_clicked()
 
 void AppCore::on_pushButton_Connect_clicked()
 {
-        addToLogs("Initialising connection.");
-        emit sendToQml("Initialising connection.");
+        addToLogs("Initialising connection");
+        emit sendToQml("Initialising connection");
         static const QString serviceUuid(QStringLiteral("00001101-0000-1000-8000-00805F9B34FB"));
         this->_socket->connectToService(QBluetoothAddress(QBluetoothAddress()), QBluetoothUuid(serviceUuid), QIODevice::ReadWrite);
         addToLogs("Connecting to device/address: " /*+ portList.first() + " / " + portList.last()*/);
-        emit sendToQml("Connecting to device.");
+        emit sendToQml("Connecting to device");
 }
 
 void AppCore::connect_toDevice_clicked(QString name)
 {
     on_pushButton_Disconnect_clicked();
-    addToLogs("Initialising connection.");
-    emit sendToQml("Initialising connection.");
+    addToLogs("Initialising connection");
+    emit sendToQml("Initialising connection");
     static const QString serviceUuid(QStringLiteral("00001101-0000-1000-8000-00805F9B34FB"));
     this->_socket->connectToService(QBluetoothAddress(_btdevices[name]), QBluetoothUuid(serviceUuid), QIODevice::ReadWrite);
     addToLogs("Connecting to device/address:\n" + name + " / " + _btdevices[name]);
-    emit sendToQml("Connecting to device.");
+    emit sendToQml("Connecting to device");
 }
 
 void AppCore::sendMessageToDevice(QString idCmd, QString message, qint16 messageType)
@@ -278,8 +278,8 @@ void AppCore::sendMessageToDevice(QString idCmd, QString message, qint16 message
 
 void AppCore::on_pushButton_Disconnect_clicked()
 {
-    addToLogs("Closing connection.");
-    emit sendToQml("Closing connection.");
+    addToLogs("Closing connection");
+    emit sendToQml("Closing connection");
     this->_socket->disconnectFromService();
     emit sendToQml("Disconnected");
 }
