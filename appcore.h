@@ -7,8 +7,16 @@
 #include <QCoreApplication>
 #include <QTime>
 #include <map>
-
+#include <QSettings>
 #include "wakecore.h"
+
+#include <mutex>
+#include <condition_variable>
+#include <thread>
+
+#ifdef Q_OS_ANDROID
+#include <QBluetoothLocalDevice>
+#endif
 
 constexpr qint32 PAUSE_MS{20};
 constexpr qint32 TIMEOUT_MS{1000};
@@ -33,7 +41,8 @@ public:
     Q_INVOKABLE void on_pushButton_Disconnect_clicked();
     Q_INVOKABLE void sendMessageToDevice(QString, QString, qint16);
     Q_INVOKABLE void copyToBuffer(QString);
-    Q_INVOKABLE void setAppSettings(bool, qint16);
+    Q_INVOKABLE void setAppSettings(bool);
+    Q_INVOKABLE void setCmdType(qint16);
 
 private slots:
     void captureDeviceProperties(const QBluetoothDeviceInfo &device);
@@ -60,6 +69,12 @@ private:
     QClipboard* _clipboard;
     bool _msInLogs;
     CmdType _cmdType;
+    QSettings _settings;
+    std::mutex _mtx;
+    std::condition_variable _cv;
+#ifdef Q_OS_ANDROID
+    QBluetoothLocalDevice *_localDevice;
+#endif
 
     QByteArray sendCommand(uint8_t cmd, QByteArray data, uint8_t addr = 0);
     void addToLogs(QString);

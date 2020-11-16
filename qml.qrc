@@ -3,7 +3,7 @@
         <file>main.qml</file>
         <file>HomeForm.qml</file>
         <file>Logs.qml</file>
-        <file>Page2Form.ui.qml</file>
+        <file>Page2Form.qml</file>
         <file>qtquickcontrols2.conf</file>
         <file>images/bluetooth_off.png</file>
         <file>images/bluetooth_on.png</file>

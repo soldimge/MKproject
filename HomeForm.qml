@@ -5,16 +5,16 @@ import Qt.labs.settings 1.0
 Page {
     property alias hpage: hpage
     property alias textInput: textInput
-//    property alias outText: outText
     property alias button: button
     property alias button1: button1
     property alias comboBox: comboBox
     property alias cmdInput: cmdInput
     property alias tumbler: tumbler
     property alias settings: settings
+    property alias tumblerOutput: tumblerOutput
 
-    width: 360
-    height: 560
+    width: 432
+    height: 672
     id: hpage
 
     Settings {
@@ -41,28 +41,29 @@ Page {
         anchors.bottom: rectangle.bottom
         anchors.bottomMargin: -4
         anchors.top: parent.top
-        anchors.topMargin: 20
-        Text {
-            id: cmdText
-            anchors.bottom: dataText.bottom
-            anchors.top: dataText.top
-            font.pointSize: 16
-            text: "DATA"
-            color: "#d7d6d5"
-            verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignHCenter
-        }
+        anchors.topMargin: 20      
+    }
+
+    Text {
+        id: cmdText
+        anchors.left: frame.left
+        anchors.right: tumbler.left
+        anchors.verticalCenter: tumbler.verticalCenter
+        font.pointSize: 16
+        text: "DATA"
+        color: "#9cbdec"
+        verticalAlignment: Text.AlignVCenter
+        horizontalAlignment: Text.AlignHCenter
     }
 
     Text {
         id: dataText
         anchors.left: parent.left
         anchors.leftMargin: 8
-        anchors.top: tumbler.top
-        anchors.bottom: tumbler.bottom
+        anchors.verticalCenter: tumbler.verticalCenter
         font.pointSize: 16
         text: "CMD"
-        color: "#d7d6d5"
+        color: "#9cbdec"
         verticalAlignment: Text.AlignVCenter
         horizontalAlignment: Text.AlignHCenter
     }
@@ -74,9 +75,7 @@ Page {
         anchors.bottom: tumblerOutput.top
         anchors.left: cmdFrame.left
         anchors.right: frame.right
-//        anchors.rightMargin: 20
-//        anchors.leftMargin: 20
-        color: "#b0bdce"
+        color: "#cdd4dc"
         radius: 3
     }
 
@@ -103,23 +102,15 @@ Page {
         }
     }
 
-//    Text {
-//        id: outText
-//        anchors.fill: rectangle2
-//        verticalAlignment: Text.AlignVCenter
-//        horizontalAlignment: Text.AlignHCenter
-//        color: "#000000"
-//        text: ""
-//        font.pointSize: 16
-//        wrapMode: Text.Wrap
-//        clip: true
-//    }
-
     ListView {
         id: logView
 
         keyNavigationWraps: false
         anchors.fill: rectangle2
+        anchors.leftMargin: 4
+        anchors.rightMargin: 4
+        anchors.topMargin: 4
+        anchors.bottomMargin: 4
         model: outTextModel
         clip: true
         delegate:
@@ -130,16 +121,14 @@ Page {
                 wrapMode: Text.Wrap
         }
         ScrollIndicator.vertical: ScrollIndicator { }
+        onCountChanged: {
+            logView.currentIndex = logView.count - 1
+        }
     }
 
     Connections {
                 target: backEnd
 
-//                onSendToQml: {
-//                    outText.text = mes
-//                    if (mes == "Connected")
-//                        busyIndicator.visible = false
-//                }
                 onAddDevice: {
                     listModel.append({"text" : name});
                 }
@@ -251,34 +240,34 @@ Page {
         anchors.top: frame.top
         width: button1.width*1.6
         background: Rectangle
-                {
-                    radius: 3
-                    color: "#232a37"
-                    border.width: 0
-                }
+            {
+                radius: 3
+                color: "#232a37"
+                border.width: 0
+            }
         model: ["ASCII", "HEX", "DEC"]
         delegate: ItemDelegate {
                             width: tumbler.width
                             contentItem: Text {
-                                text: modelData
-                                color: "#d7d6d5"
-                                font: tumbler.font
-                                elide: Text.ElideRight
-                                verticalAlignment: Text.AlignVCenter
-                                horizontalAlignment: Text.AlignHCenter
-                            }
-                            highlighted: tumbler.highlightedIndex === index
-                        }
-                        contentItem: Text {
-                            leftPadding: 20
-                            text: tumbler.displayText
+                            text: modelData
                             color: "#d7d6d5"
-                            font.pointSize: 16
+                            font: tumbler.font
+                            elide: Text.ElideRight
                             verticalAlignment: Text.AlignVCenter
                             horizontalAlignment: Text.AlignHCenter
+                            }
+                            highlighted: tumbler.highlightedIndex === index
+                         }
+        contentItem: Text {
+                        leftPadding: 20
+                        text: tumbler.displayText
+                        color: "#d7d6d5"
+                        font.pointSize: 16
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignHCenter
                         }
         currentIndex: settings.indxFromSettings
-    }
+        }
 
     ComboBox {
         id: tumblerOutput
@@ -286,7 +275,6 @@ Page {
         anchors.rightMargin: 4
         anchors.bottom: parent.bottom
         height: tumbler.height
-//        anchors.top: comboBox.top
         width: button1.width*1.6
         background: Rectangle
                 {
@@ -331,8 +319,8 @@ Page {
         currentIndex: settings.indx2FromSettings
         onActivated:
         {
-            tumblerOutput.displayText = tumblerOutput.model[tumblerOutput.currentIndex]
-            backEnd.setAppSettings(ms, tumblerOutput.currentIndex)
+//            tumblerOutput.displayText = tumblerOutput.model[tumblerOutput.currentIndex]
+            backEnd.setCmdType(tumblerOutput.currentIndex)
             tumblerIndx = tumblerOutput.currentIndex
         }
     }

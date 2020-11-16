@@ -70,12 +70,18 @@ QString convertBytesToString(QByteArray array, CmdType messageType)
 
 AppCore::AppCore(QObject *parent) : QObject{parent},
                                     _reqIsActive{0},
-                                    _clipboard{QGuiApplication::clipboard()},
-                                    _msInLogs{false},
-                                    _cmdType{CmdType::ASCII}
+                                    _clipboard{QGuiApplication::clipboard()}
 {
-    this->_discoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
-    this->_socket = new QBluetoothSocket(QBluetoothServiceInfo::RfcommProtocol, this);
+    _msInLogs = _settings.value("msInLogs").toBool();
+    _cmdType = static_cast<CmdType>(_settings.value("cmdType").toInt());
+
+#ifdef Q_OS_ANDROID
+    _localDevice = new QBluetoothLocalDevice(this);
+    _localDevice->powerOn();
+#endif
+
+    _discoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
+    _socket = new QBluetoothSocket(QBluetoothServiceInfo::RfcommProtocol, this);
 
     connect(this->_discoveryAgent, SIGNAL(deviceDiscovered(QBluetoothDeviceInfo)), this, SLOT(captureDeviceProperties(QBluetoothDeviceInfo)));
     connect(this->_discoveryAgent, SIGNAL(finished()), this, SLOT(searchFinished()));
@@ -88,6 +94,15 @@ AppCore::AppCore(QObject *parent) : QObject{parent},
 AppCore::~AppCore()
 {
     on_pushButton_Disconnect_clicked();
+
+    _settings.setValue("msInLogs", _msInLogs);
+    _settings.setValue("cmdType", static_cast<qint16>(_cmdType));
+    _settings.sync();
+
+#ifdef Q_OS_ANDROID
+    _localDevice->setHostMode(QBluetoothLocalDevice::HostPoweredOff);
+#endif
+
     delete _discoveryAgent;
 }
 
@@ -96,17 +111,20 @@ void AppCore::copyToBuffer(QString text)
     _clipboard->setText(text);
 }
 
-void AppCore::setAppSettings(bool ms, qint16 cmdTypeFromQml)
+void AppCore::setCmdType(qint16 cmdTypeFromQml)
 {
-    _msInLogs = ms;
     _cmdType = static_cast<CmdType>(cmdTypeFromQml);
+}
+
+void AppCore::setAppSettings(bool ms)
+{
+    _msInLogs = ms;   
 }
 
 void AppCore::addToLogs(QString message)
 {
     QString currentDateTime;
-//    QString currentDateTime = QDateTime::currentDateTime().toString("yyyy.MM.dd hh:mm:ss");
-    if(_msInLogs)
+    if (_msInLogs)
         currentDateTime = QDateTime::currentDateTime().toString("hh:mm:ss:zzz");
     else
         currentDateTime = QDateTime::currentDateTime().toString("hh:mm:ss");

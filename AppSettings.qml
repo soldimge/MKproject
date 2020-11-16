@@ -4,10 +4,8 @@ import Qt.labs.settings 1.0
 import QtQuick.Layouts 1.15
 
 Page {
-    width: 360
-    height: 560
-
-    property alias appSetSettings: appSetSettings
+    width: 432
+    height: 672
 
     Settings {
         id: appSetSettings
@@ -16,10 +14,13 @@ Page {
 
     GroupBox {
         title: qsTr("Settings")
+
         anchors.top: parent.top
         anchors.topMargin: 50
         anchors.left: parent.left
         anchors.leftMargin: 50
+        anchors.right: parent.right
+        anchors.rightMargin: 50
         ColumnLayout {
             CheckBox
             {
@@ -28,7 +29,7 @@ Page {
                 checkState: appSetSettings.checkStateFromSettings
                 onCheckStateChanged:
                 {
-                    backEnd.setAppSettings(msCS.checkState, tumblerIndx)
+                    backEnd.setAppSettings(msCS.checkState)
                     ms = msCS.checkState
                 }
             }

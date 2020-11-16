@@ -3,12 +3,12 @@ import QtQuick.Controls 2.15
 
 ApplicationWindow {
     id: window
-    width: 360
-    height: 640
+    width: 432
+    height: 768
     visible: true
 
     property string logString
-    property int ms : 0
+    property int ms
     property int tumblerIndx
     property int tumblerIndx2
 
@@ -162,8 +162,7 @@ ApplicationWindow {
                      toolButton2Pic.source = "qrc:/images/bluetooth_on.png"
                      backEnd.on_pushButton_Connect_clicked()
                      busyIndicator.visible = true
-                     toolButton4.enabled = false;
-                     backEnd.setAppSettings(ms, tumblerIndx)
+                     toolButton4.enabled = false
                  }
                  else
                  {
@@ -171,7 +170,7 @@ ApplicationWindow {
                      toolButton2Pic.source = "qrc:/images/bluetooth_off.png"
                      backEnd.on_pushButton_Disconnect_clicked()
                      busyIndicator.visible = false
-                     toolButton4.enabled = true;
+                     toolButton4.enabled = true
                  }
              }
         }
@@ -191,11 +190,10 @@ ApplicationWindow {
                 }
                 onClicked:
                 {
-                    toolButton4.enabled = false;
+                    toolButton4.enabled = false
                     busyIndicator.visible = true
-                    backEnd.setAppSettings(ms, tumblerIndx)
                     backEnd.on_pushButton_Search_clicked()
-                    toolButton2.enabled = false;             
+                    toolButton2.enabled = false
                 }
                 hoverEnabled: true
 
@@ -280,7 +278,7 @@ ApplicationWindow {
                 text: qsTr("Page 2")
                 width: parent.width
                 onClicked: {
-                    stackView.push("Page2Form.ui.qml")
+                    stackView.push("Page2Form.qml")
                     drawer.close()
                 }
             }

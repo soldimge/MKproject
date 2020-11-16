@@ -3,13 +3,14 @@ import QtQuick.Controls 2.15
 
 
 Page {
-    width: 360
-    height: 560
+    width: 432
+    height: 672
 
     Label {
         text: logsListModel.count > 0 ? "" : "Logs will be here"
         anchors.centerIn: logView
     }
+
     ListView {
         id: logView
 
@@ -32,6 +33,9 @@ Page {
                 wrapMode: Text.Wrap
         }
         ScrollIndicator.vertical: ScrollIndicator { }
+        onCountChanged: {
+            logView.currentIndex = logView.count - 1
+        }
     }
 
     Button {
@@ -48,12 +52,6 @@ Page {
             logsListModel.clear()
             logString = ""
         }
-        hoverEnabled: true
-
-        ToolTip.delay: 1000
-        ToolTip.timeout: 5000
-        ToolTip.visible: hovered
-        ToolTip.text: qsTr("Clear logs")
     }
 
     Button {
@@ -76,17 +74,12 @@ Page {
                 console.log(logString)
                 backEnd.copyToBuffer(logString);
             }
-            ttCopy.show("Copied", 3000)
+            ttCopy.show("Copied to buffer", 3000)
         }
+
         ToolTip {
             id: ttCopy
             parent: shareLogsButton.handle
         }
-        hoverEnabled: true
-
-        ToolTip.delay: 1000
-        ToolTip.timeout: 5000
-        ToolTip.visible: hovered
-        ToolTip.text: qsTr("Copy logs to buffer")
     }
 }
