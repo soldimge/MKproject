@@ -4,8 +4,8 @@ import Qt.labs.settings 1.0
 import QtQuick.Layouts 1.15
 
 Page {
-    width: 432
-    height: 672
+    width: 360
+    height: 560
 
     Settings {
         id: appSetSettings

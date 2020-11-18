@@ -8,11 +8,9 @@
 #include <QTime>
 #include <map>
 #include <QSettings>
-#include "wakecore.h"
-
 #include <mutex>
-#include <condition_variable>
-#include <thread>
+
+#include "wakecore.h"
 
 #ifdef Q_OS_ANDROID
 #include <QBluetoothLocalDevice>
@@ -64,6 +62,7 @@ private:
     std::map<QString, QString> _btdevices;
     WakeCore _wake;
     bool _reqIsActive;
+    uint8_t _reqAddr;
     uint8_t _reqCmd;
     QByteArray _answer;
     QClipboard* _clipboard;
@@ -71,7 +70,6 @@ private:
     CmdType _cmdType;
     QSettings _settings;
     std::mutex _mtx;
-    std::condition_variable _cv;
 #ifdef Q_OS_ANDROID
     QBluetoothLocalDevice *_localDevice;
 #endif

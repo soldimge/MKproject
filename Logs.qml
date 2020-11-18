@@ -3,8 +3,8 @@ import QtQuick.Controls 2.15
 
 
 Page {
-    width: 432
-    height: 672
+    width: 360
+    height: 560
 
     Label {
         text: logsListModel.count > 0 ? "" : "Logs will be here"

@@ -176,18 +176,19 @@ void AppCore::sockectReadyToRead()
     {
         if (_wake.byteParse(byte) == ParseResult::PARSE_SUCCESS)
         {
+            uint8_t rcvAddr = _wake.getRcvAddr();
             uint8_t rcvCmd = _wake.getRcvCmd();
             QByteArray rcvArray = QByteArray((char*)_wake.getRcvData(), _wake.getRcvSize());
 
             addToLogs("CMD " + convertByteToString(rcvCmd, CmdType::DEC) + ": " + convertBytesToString(rcvArray, _cmdType));
-//            emit sendToQml("RX " + convertByteToString(rcvCmd, CmdType::DEC) + ": " + convertBytesToString(rcvArray, _cmdType));
             emit addMes("RX " + convertByteToString(rcvCmd, CmdType::DEC) + ": " + convertBytesToString(rcvArray, _cmdType));
-            if (_reqIsActive && _reqCmd == rcvCmd)
+
+            std::unique_lock<std::mutex> lock(_mtx);
+            if (_reqIsActive && _reqCmd == rcvCmd && _reqAddr == rcvAddr)
             {
                 _reqIsActive = false;
                 _answer = rcvArray;
             }
-            sendCommand(rcvCmd, rcvArray);
         }
     }
 }
@@ -199,25 +200,32 @@ QByteArray AppCore::sendCommand(uint8_t cmd, QByteArray data, uint8_t addr)
     if (this->_socket->isOpen() && this->_socket->isWritable())
     {
         addToLogs("Send CMD " + convertByteToString(cmd, CmdType::DEC) + ": " + convertBytesToString(data, _cmdType));
-//        emit sendToQml("TX " + convertByteToString(cmd, CmdType::DEC) + ": " + convertBytesToString(data, _cmdType));
         emit addMes("TX " + convertByteToString(cmd, CmdType::DEC) + ": " + convertBytesToString(data, _cmdType));
         if (this->_socket->write((char*)_wake.getSndData(), sendSize) == (qint64)sendSize)
         {
+            std::unique_lock<std::mutex> lock(_mtx);
             _reqIsActive = true;
+            _reqAddr = addr;
+            _reqCmd = cmd;
+
             size_t timeout = 0;
             while(_reqIsActive && timeout < TIMEOUT_MS)
             {
+                lock.unlock();
                 pause(PAUSE_MS);
+                lock.lock();
                 timeout += PAUSE_MS;
             }
 
             if (!_reqIsActive)
             {
+                addToLogs("Send message success");
                 //success recieving
                 return _answer;
             }
             else
             {
+                addToLogs("Send message error: timeout");
                 _reqIsActive = false;
                 //error timeout
             }
@@ -242,12 +250,12 @@ void AppCore::on_pushButton_Search_clicked()
 
 void AppCore::on_pushButton_Connect_clicked()
 {
-        addToLogs("Initialising connection");
-        emit sendToQml("Initialising connection");
-        static const QString serviceUuid(QStringLiteral("00001101-0000-1000-8000-00805F9B34FB"));
-        this->_socket->connectToService(QBluetoothAddress(QBluetoothAddress()), QBluetoothUuid(serviceUuid), QIODevice::ReadWrite);
-        addToLogs("Connecting to device/address: " /*+ portList.first() + " / " + portList.last()*/);
-        emit sendToQml("Connecting to device");
+    addToLogs("Initialising connection");
+    emit sendToQml("Initialising connection");
+    static const QString serviceUuid(QStringLiteral("00001101-0000-1000-8000-00805F9B34FB"));
+    this->_socket->connectToService(QBluetoothAddress(QBluetoothAddress()), QBluetoothUuid(serviceUuid), QIODevice::ReadWrite);
+    addToLogs("Connecting to device/address: " /*+ portList.first() + " / " + portList.last()*/);
+    emit sendToQml("Connecting to device");
 }
 
 void AppCore::connect_toDevice_clicked(QString name)

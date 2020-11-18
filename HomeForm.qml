@@ -13,8 +13,8 @@ Page {
     property alias settings: settings
     property alias tumblerOutput: tumblerOutput
 
-    width: 432
-    height: 672
+    width: 360
+    height: 560
     id: hpage
 
     Settings {

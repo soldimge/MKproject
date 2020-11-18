@@ -3,8 +3,8 @@ import QtQuick.Controls 2.15
 
 ApplicationWindow {
     id: window
-    width: 432
-    height: 768
+    width: 360
+    height: 640
     visible: true
 
     property string logString
@@ -274,14 +274,14 @@ ApplicationWindow {
                     drawer.close()
                 }
             }
-            ItemDelegate {
-                text: qsTr("Page 2")
-                width: parent.width
-                onClicked: {
-                    stackView.push("Page2Form.qml")
-                    drawer.close()
-                }
-            }
+//            ItemDelegate {
+//                text: qsTr("Page 2")
+//                width: parent.width
+//                onClicked: {
+//                    stackView.push("Page2Form.qml")
+//                    drawer.close()
+//                }
+//            }
             ItemDelegate {
                 text: qsTr("AppSettings")
                 width: parent.width

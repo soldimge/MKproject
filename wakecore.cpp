@@ -236,3 +236,8 @@ uint8_t WakeCore::getRcvCmd()
 {
     return _rcvCmd;
 }
+
+uint8_t WakeCore::getRcvAddr()
+{
+    return _rcvAddr;
+}

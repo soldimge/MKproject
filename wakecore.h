@@ -40,6 +40,7 @@ public:
     uint8_t *getRcvData();
     uint8_t getRcvSize();
     uint8_t getRcvCmd();
+    uint8_t getRcvAddr();
 
 private:
     bool _escSequence;
