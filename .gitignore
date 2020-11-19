@@ -46,3 +46,4 @@ Makefile*
 
 # Other
 *.stash
+*.qrc
