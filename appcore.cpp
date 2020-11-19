@@ -16,47 +16,34 @@ void pause(qint32 ms)
 
 QString convertByteToString(uint8_t byte, CmdType messageType)
 {
-    QString str{};
-
     switch (messageType)
     {
     case CmdType::ASCII:
-        str = byte;
-        break;
+        return QString(byte);
     case CmdType::HEX:
-        str = QString::number(byte, 16);
-        break;
+        return QString::number(byte, 16);
     case CmdType::DEC:
-        str = QString::number(byte, 10);
+        return QString::number(byte, 10);
         break;
+    default:
+        return "";
     }
-
-    return str;
 }
 
 QString convertBytesToString(QByteArray array, CmdType messageType)
 {
     QString str{};
 
-    switch (messageType)
+    if (messageType == CmdType::ASCII)
     {
-    case CmdType::ASCII:
         str = QString::fromStdString(array.toStdString());
-        break;
-
-    case CmdType::HEX:
+    }
+    else
+    {
         for (auto byte: array)
         {
-            str += QString::number(byte, 16) + " ";
+            str += convertByteToString(byte, messageType) + " ";
         }
-        break;
-
-    case CmdType::DEC:
-        for (auto byte: array)
-        {
-            str += QString::number(byte, 10) + " ";
-        }
-        break;
     }
 
     if (str.length())
@@ -180,8 +167,9 @@ void AppCore::sockectReadyToRead()
             uint8_t rcvCmd = _wake.getRcvCmd();
             QByteArray rcvArray = QByteArray((char*)_wake.getRcvData(), _wake.getRcvSize());
 
-            addToLogs("CMD " + convertByteToString(rcvCmd, CmdType::DEC) + ": " + convertBytesToString(rcvArray, _cmdType));
-            emit addMes("RX " + convertByteToString(rcvCmd, CmdType::DEC) + ": " + convertBytesToString(rcvArray, _cmdType));
+            QString logStr = "RX " + convertByteToString(rcvCmd, CmdType::DEC) + ": " + convertBytesToString(rcvArray, _cmdType);
+            addToLogs(logStr);
+            emit addMes(logStr);
 
             std::unique_lock<std::mutex> lock(_mtx);
             if (_reqIsActive && _reqCmd == rcvCmd && _reqAddr == rcvAddr)
@@ -199,8 +187,10 @@ QByteArray AppCore::sendCommand(uint8_t cmd, QByteArray data, uint8_t addr)
 
     if (this->_socket->isOpen() && this->_socket->isWritable())
     {
-        addToLogs("Send CMD " + convertByteToString(cmd, CmdType::DEC) + ": " + convertBytesToString(data, _cmdType));
-        emit addMes("TX " + convertByteToString(cmd, CmdType::DEC) + ": " + convertBytesToString(data, _cmdType));
+        QString logStr = "TX " + convertByteToString(cmd, CmdType::DEC) + ": " + convertBytesToString(data, _cmdType);
+        addToLogs(logStr);
+        emit addMes(logStr);
+
         if (this->_socket->write((char*)_wake.getSndData(), sendSize) == (qint64)sendSize)
         {
             std::unique_lock<std::mutex> lock(_mtx);
@@ -272,31 +262,35 @@ void AppCore::connect_toDevice_clicked(QString name)
 void AppCore::sendMessageToDevice(QString idCmd, QString message, qint16 messageType)
 {
     QByteArray sendArray;
-    switch (static_cast<CmdType>(messageType))
-    {
-    case CmdType::ASCII:
-        sendArray = QByteArray::fromStdString(message.toStdString());
-        break;
 
-    case CmdType::HEX:
+    if (!message.isEmpty())
     {
-        QStringList byteList = message.split(" ");
-        for(QString byte : byteList)
+        switch (static_cast<CmdType>(messageType))
         {
-            sendArray += byte.toUInt(nullptr, 16);
-        }
-    }
-        break;
+        case CmdType::ASCII:
+            sendArray = QByteArray::fromStdString(message.toStdString());
+            break;
 
-    case CmdType::DEC:
-    {
-        QStringList byteList = message.split(" ");
-        for(QString byte : byteList)
+        case CmdType::HEX:
         {
-            sendArray += byte.toUInt(nullptr, 10);
+            QStringList byteList = message.split(" ");
+            for(QString byte : byteList)
+            {
+                sendArray += byte.toUInt(nullptr, 16);
+            }
         }
-    }
-        break;
+            break;
+
+        case CmdType::DEC:
+        {
+            QStringList byteList = message.split(" ");
+            for(QString byte : byteList)
+            {
+                sendArray += byte.toUInt(nullptr, 10);
+            }
+        }
+            break;
+        }
     }
 
     sendCommand(idCmd.toInt(), sendArray);
