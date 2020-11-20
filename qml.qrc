@@ -12,5 +12,10 @@
         <file>images/menu.png</file>
         <file>AppSettings.qml</file>
         <file>images/search.png</file>
+        <file>images/btLevel0.png</file>
+        <file>images/btLevel1.png</file>
+        <file>images/btLevel2.png</file>
+        <file>images/btLevel3.png</file>
+        <file>images/btLevel4.png</file>
     </qresource>
 </RCC>

@@ -59,7 +59,7 @@ signals:
 private:
     QBluetoothDeviceDiscoveryAgent *_discoveryAgent;
     QBluetoothSocket *_socket;
-    std::map<QString, QString> _btdevices;
+    std::map<QString, std::pair<QString, qint16>> _btdevices;
     WakeCore _wake;
     bool _reqIsActive;
     uint8_t _reqAddr;

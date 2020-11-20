@@ -119,17 +119,21 @@ void AppCore::addToLogs(QString message)
     emit addLog(currentDateTime + ":   " + message);
 }
 
-
 void AppCore::captureDeviceProperties(const QBluetoothDeviceInfo &device)
 {
-    static QBluetoothDeviceInfo temp;
-    if(temp != device)
+    if (_btdevices.find(device.name()) == _btdevices.end())
     {
-//        addToLogs("device found\n name: " + device.name() + "\n and address: " + device.address().toString());
-        addToLogs("device found, name/address:\n" + device.name() + " / " + device.address().toString());
-        _btdevices[device.name()] = device.address().toString();
+        QString logStr;
+
+#ifdef Q_OS_ANDROID
+        logStr = "device found, name/address/rssi:\n" + device.name() + " / " + device.address().toString() + QString(" / %1 dBm").arg(device.rssi());
+        _btdevices[device.name()] = std::make_pair(device.address().toString(), device.rssi());
+#else
+        logStr = "device found, name/address:\n" + device.name() + " / " + device.address().toString();
+        _btdevices[device.name()] = std::make_pair(device.address().toString(), device.rssi());
+#endif
+        addToLogs(logStr);
     }
-    temp = device;
 }
 
 void AppCore::searchFinished()
@@ -138,8 +142,29 @@ void AppCore::searchFinished()
     emit endOfSearch();
     for(auto i : _btdevices)
     {
-        qDebug() << (i.first + " --- " + i.second);
-        emit addDevice(i.first);
+        qDebug() << (i.first + " --- " + i.second.first);
+
+        QString name;
+        i.first == "" ? name = i.second.first : name = i.first;
+
+#ifdef Q_OS_ANDROID
+        qint16 dBm = i.second.second;
+
+        if (dBm >= -50)
+            dBm = 4;
+        else if (dBm < -50 && dBm > -65)
+            dBm = 3;
+        else if (dBm <= -65 && dBm > -75)
+            dBm = 2;
+        else if (dBm <= -75 && dBm > -85)
+            dBm = 1;
+        else if (dBm <= -85 && dBm >= -100)
+            dBm = 0;
+
+        emit addDevice(name + " (" + QString::number(dBm) + ")");
+#else
+        emit addDevice(name);
+#endif
     }
 }
 
@@ -223,7 +248,7 @@ QByteArray AppCore::sendCommand(uint8_t cmd, QByteArray data, uint8_t addr)
     }
     else
     {
-        addToLogs("Cannot send message. No open connection");
+        addToLogs("Cannot send message.\nNo open connection");
         emit sendToQml("Error:\nNo open connection");
     }
     return nullptr;
@@ -254,8 +279,8 @@ void AppCore::connect_toDevice_clicked(QString name)
     addToLogs("Initialising connection");
     emit sendToQml("Initialising connection");
     static const QString serviceUuid(QStringLiteral("00001101-0000-1000-8000-00805F9B34FB"));
-    this->_socket->connectToService(QBluetoothAddress(_btdevices[name]), QBluetoothUuid(serviceUuid), QIODevice::ReadWrite);
-    addToLogs("Connecting to device/address:\n" + name + " / " + _btdevices[name]);
+    this->_socket->connectToService(QBluetoothAddress(_btdevices[name].first), QBluetoothUuid(serviceUuid), QIODevice::ReadWrite);
+    addToLogs("Connecting to device/address:\n" + name + " / " + _btdevices[name].first);
     emit sendToQml("Connecting to device");
 }
 

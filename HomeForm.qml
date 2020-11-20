@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import Qt.labs.settings 1.0
+//import QtQuick.Controls.Styles 1.4
 
 Page {
     property alias hpage: hpage
@@ -22,6 +23,7 @@ Page {
         property alias indxFromSettings: tumbler.currentIndex
         property alias indxFromSettings2: tumblerOutput.currentIndex
     }
+
     Frame {
         id: cmdFrame
         anchors.left: dataText.left
@@ -32,6 +34,7 @@ Page {
         anchors.leftMargin: -4
         anchors.bottomMargin: -4
     }
+
     Frame {
         id: frame
         anchors.left: rectangle.left
@@ -70,8 +73,8 @@ Page {
 
     Rectangle {
         id: rectangle2
-        anchors.top: button.bottom
-        anchors.topMargin: 4
+        anchors.top: comboBox.bottom
+//        anchors.topMargin: 4
         anchors.bottom: tumblerOutput.top
         anchors.left: cmdFrame.left
         anchors.right: frame.right
@@ -93,8 +96,10 @@ Page {
         TextInput {
             id: textInput
             anchors.fill: rectangle
+            anchors.leftMargin: 4
+            anchors.rightMargin: 4
             verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignHCenter
+            horizontalAlignment: Text.AlignLeft
             text: ""
             font.pointSize: 16
             wrapMode: Text.Wrap
@@ -119,6 +124,7 @@ Page {
                 text: modelData
                 color: "#000000"
                 wrapMode: Text.Wrap
+                clip: true
         }
         ScrollIndicator.vertical: ScrollIndicator { }
         onCountChanged: {
@@ -134,7 +140,7 @@ Page {
                 }
                 onEndOfSearch: {
                     listModel.clear()
-                    comboBox.visible = true
+                    btDevicesVisible = true
                     toolButton4.enabled = true
                     busyIndicator.visible = false
                     toolButton2.enabled = true
@@ -165,17 +171,18 @@ Page {
         ToolTip.text: qsTr("Clear all fields")
     }
 
-
     ComboBox {
-        visible: false
+//        visible: btDevicesVisible
+        visible: true
         id: comboBox
         model: listModel
-//        height: rectangle.height*1.8
-        anchors.bottom: button.bottom
-        anchors.top: button.top
-        anchors.left: button.right
+//        model: ["ASCII", "HEX", "DEC"]
+        anchors.top: button.bottom
+        anchors.topMargin: -6
+        height: button.height
+        anchors.left: parent.left
         anchors.leftMargin: 4
-        anchors.right: button1.left
+        anchors.right: parent.right
         anchors.rightMargin: 4
         flat: true
         currentIndex: -1
@@ -183,7 +190,7 @@ Page {
         background: Rectangle
                 {
                     radius: 3
-                    color: "#232a37"
+                    color: "#11ffffff"
                     border.width: 0
                 }
         delegate: ItemDelegate {
@@ -194,13 +201,25 @@ Page {
                         font: comboBox.font
                         elide: Text.ElideRight
                         verticalAlignment: Text.AlignVCenter
-                        horizontalAlignment: Text.AlignHCenter
+                        horizontalAlignment: Text.AlignLeft
+                        anchors.leftMargin: 4
                     }
-                    highlighted: comboBox.highlightedIndex === index
+                    Image {
+                        id: btSignal1
+                        anchors.top: parent.top
+                        anchors.bottom: parent.bottom
+                        anchors.right: parent.right
+                        anchors.rightMargin: 4
+                //        width: height
+                        fillMode: Image.PreserveAspectFit
+                        source: listModel.count == 0 ? "images/btLevel0.png" : listModel.count == 1 ? "images/btLevel1.png" : listModel.count == 2 ? "images/btLevel2.png" : "images/btLevel3.png"
+                        scale: 0.5
+                        opacity: 0.7
+                    }
+                    highlighted: comboBox.highlightedIndex === index             
                 }
 
                 contentItem: Text {
-//                    leftPadding: 20
                     text: comboBox.displayText
                     color: "#9cbdec"
                     font.pointSize: 14
@@ -211,7 +230,6 @@ Page {
                     dim: true
                     width: comboBox.width
                     x: comboBox.width - width
-//                    y: comboBox.height + height
                     leftPadding: 0
                     padding: 0
                     contentItem: ListView {
@@ -227,6 +245,9 @@ Page {
             backEnd.connect_toDevice_clicked(comboBox.displayText);
             toolButton2Pic.source = "qrc:/images/bluetooth_on.png";
         }
+//        onCountChanged: {
+//            btSignal1.source = "images/btLevel" + listModel.count + ".png";
+//        }
     }
 
     ListModel {
@@ -237,12 +258,13 @@ Page {
         id: tumbler
         anchors.right: rectangle.right
         anchors.bottom: rectangle.top
+        flat: true
         anchors.top: frame.top
         width: button1.width*1.6
         background: Rectangle
             {
                 radius: 3
-                color: "#232a37"
+                color: "#11ffffff"
                 border.width: 0
             }
         model: ["ASCII", "HEX", "DEC"]
@@ -259,12 +281,12 @@ Page {
                             highlighted: tumbler.highlightedIndex === index
                          }
         contentItem: Text {
-                        leftPadding: 20
-                        text: tumbler.displayText
-                        color: "#d7d6d5"
-                        font.pointSize: 16
-                        verticalAlignment: Text.AlignVCenter
-                        horizontalAlignment: Text.AlignHCenter
+            leftPadding: 20
+            text: tumbler.displayText
+            color: "#d7d6d5"
+            font.pointSize: 16
+            verticalAlignment: Text.AlignVCenter
+            horizontalAlignment: Text.AlignHCenter
                         }
         currentIndex: settings.indxFromSettings
         }
@@ -274,12 +296,13 @@ Page {
         anchors.right: parent.right
         anchors.rightMargin: 4
         anchors.bottom: parent.bottom
+        flat: true
         height: tumbler.height
         width: button1.width*1.6
         background: Rectangle
                 {
                     radius: 3
-                    color: "#232a37"
+                    color: "#11ffffff"
                     border.width: 0
                 }
         model: ["ASCII", "HEX", "DEC"]
@@ -339,8 +362,10 @@ Page {
             anchors.fill: parent
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
-            text: ""
+            text: "0"
             font.pointSize: 16
+            wrapMode: Text.Wrap
+            clip: true
         }
     }
 

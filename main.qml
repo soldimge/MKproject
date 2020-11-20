@@ -11,6 +11,7 @@ ApplicationWindow {
     property int ms
     property int tumblerIndx
     property int tumblerIndx2
+    property bool btDevicesVisible
 
     title: qsTr("LaserApp")
 
@@ -52,7 +53,7 @@ ApplicationWindow {
     Dialog {
         id: dial
         visible: false
-        title: "Закрыть и выйти?"
+        title: "Close and exit?"
         modal: true
         Overlay.modal: Rectangle {
                     color: "#aacfdbe7"
@@ -74,8 +75,8 @@ ApplicationWindow {
                     Qt.callLater(Qt.quit)
                 }
                 Text {
-                    text: "Да"
-                    font.pointSize: 12
+                    text: "Yes"
+                    font.pointSize: Qt.platform.os === "windows" ? 12 : 16
                     color: "#d7d6d5"
                     anchors.centerIn: parent
                 }
@@ -87,8 +88,8 @@ ApplicationWindow {
                 anchors.bottom: parent.bottom
                 onClicked: dial.visible = false
                 Text {
-                    text: "Нет"
-                    font.pointSize: 12
+                    text: "No"
+                    font.pointSize: Qt.platform.os === "windows" ? 12 : 16
                     color: "#d7d6d5"
                     anchors.centerIn: parent
                 }
@@ -127,7 +128,6 @@ ApplicationWindow {
                 source: stackView.depth > 1 ? "qrc:/images/back.png" : "qrc:/images/drawer.png"
                 scale: 0.55
             }
-            font.pointSize: Qt.application.font.pointSize * 1.6
             onClicked: {
                 if (stackView.depth > 1) {
                     stackView.pop()
@@ -194,6 +194,7 @@ ApplicationWindow {
                     busyIndicator.visible = true
                     backEnd.on_pushButton_Search_clicked()
                     toolButton2.enabled = false
+                    btDevicesVisible = false
                 }
                 hoverEnabled: true
 
