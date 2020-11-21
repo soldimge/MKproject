@@ -158,7 +158,7 @@ void AppCore::searchFinished()
             level = "●●○○";
         else if (dBm <= -75 && dBm > -85)
             level = "●○○○";
-        else if (dBm <= -85 && dBm >= -100)
+        else if (dBm <= -85)
             level = "○○○○";
 
         if (name.length() > 20)

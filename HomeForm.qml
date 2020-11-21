@@ -172,8 +172,8 @@ Page {
     }
 
     ComboBox {
-//        visible: btDevicesVisible
-        visible: true
+        visible: btDevicesVisible
+//        visible: true
         id: comboBox
         model: listModel
 //        model: ["ASCII", "HEX", "DEC"]
