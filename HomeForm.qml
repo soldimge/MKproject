@@ -197,31 +197,19 @@ Page {
                     width: comboBox.width
                     contentItem: Text {
                         text: modelData
-                        color: "#9cbdec"
+                        color: "#d7d6d5"
                         font: comboBox.font
                         elide: Text.ElideRight
                         verticalAlignment: Text.AlignVCenter
-                        horizontalAlignment: Text.AlignLeft
+                        horizontalAlignment: Qt.platform.os === "windows" ? Text.AlignHCenter : Text.AlignLeft
                         anchors.leftMargin: 4
-                    }
-                    Image {
-                        id: btSignal1
-                        anchors.top: parent.top
-                        anchors.bottom: parent.bottom
-                        anchors.right: parent.right
-                        anchors.rightMargin: 4
-                //        width: height
-                        fillMode: Image.PreserveAspectFit
-                        source: listModel.count == 0 ? "images/btLevel0.png" : listModel.count == 1 ? "images/btLevel1.png" : listModel.count == 2 ? "images/btLevel2.png" : "images/btLevel3.png"
-                        scale: 0.5
-                        opacity: 0.7
                     }
                     highlighted: comboBox.highlightedIndex === index             
                 }
 
                 contentItem: Text {
                     text: comboBox.displayText
-                    color: "#9cbdec"
+                    color: "#d7d6d5"
                     font.pointSize: 14
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
@@ -245,9 +233,6 @@ Page {
             backEnd.connect_toDevice_clicked(comboBox.displayText);
             toolButton2Pic.source = "qrc:/images/bluetooth_on.png";
         }
-//        onCountChanged: {
-//            btSignal1.source = "images/btLevel" + listModel.count + ".png";
-//        }
     }
 
     ListModel {

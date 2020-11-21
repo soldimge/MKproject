@@ -127,11 +127,10 @@ void AppCore::captureDeviceProperties(const QBluetoothDeviceInfo &device)
 
 #ifdef Q_OS_ANDROID
         logStr = "device found, name/address/rssi:\n" + device.name() + " / " + device.address().toString() + QString(" / %1 dBm").arg(device.rssi());
-        _btdevices[device.name()] = std::make_pair(device.address().toString(), device.rssi());
 #else
         logStr = "device found, name/address:\n" + device.name() + " / " + device.address().toString();
-        _btdevices[device.name()] = std::make_pair(device.address().toString(), device.rssi());
 #endif
+        _btdevices[device.name()] = std::make_pair(device.address().toString(), device.rssi());
         addToLogs(logStr);
     }
 }
@@ -140,31 +139,38 @@ void AppCore::searchFinished()
 {
     addToLogs("Search finished");
     emit endOfSearch();
+
     for(auto i : _btdevices)
     {
         qDebug() << (i.first + " --- " + i.second.first);
-
         QString name;
         i.first == "" ? name = i.second.first : name = i.first;
 
 #ifdef Q_OS_ANDROID
         qint16 dBm = i.second.second;
+        QString level;
 
         if (dBm >= -50)
-            dBm = 4;
+            level = "●●●●";
         else if (dBm < -50 && dBm > -65)
-            dBm = 3;
+            level = "●●●○";
         else if (dBm <= -65 && dBm > -75)
-            dBm = 2;
+            level = "●●○○";
         else if (dBm <= -75 && dBm > -85)
-            dBm = 1;
+            level = "●○○○";
         else if (dBm <= -85 && dBm >= -100)
-            dBm = 0;
+            level = "○○○○";
 
-        emit addDevice(name + " (" + QString::number(dBm) + ")");
+        if (name.length() > 20)
+            emit addDevice(name + "\t" + level);
+        else if (name.length() < 10)
+            emit addDevice(name + "\t\t\t" + level);
+        else
+            emit addDevice(name + "\t\t" + level);
 #else
         emit addDevice(name);
 #endif
+
     }
 }
 
