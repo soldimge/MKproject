@@ -57,10 +57,16 @@ QString convertBytesToString(QByteArray array, CmdType messageType)
 
 AppCore::AppCore(QObject *parent) : QObject{parent},
                                     _reqIsActive{0},
-                                    _clipboard{QGuiApplication::clipboard()}
+                                    _clipboard{QGuiApplication::clipboard()}/*,
+                                    _pauseMS{20},
+                                    _timeoutMS{1000}*/
 {
     _msInLogs = _settings.value("msInLogs").toBool();
     _cmdType = static_cast<CmdType>(_settings.value("cmdType").toInt());
+    _pauseMS = _settings.value("pauseMS").toInt() != 0 ? _settings.value("pauseMS").toInt() : PAUSE_MS;
+    _timeoutMS = _settings.value("timeoutMS").toInt() != 0 ? _settings.value("timeoutMS").toInt() : TIMEOUT_MS;
+    qDebug() <<  _timeoutMS;
+    qDebug() << _pauseMS;
 
 #ifdef Q_OS_ANDROID
     _localDevice = new QBluetoothLocalDevice(this);
@@ -72,6 +78,7 @@ AppCore::AppCore(QObject *parent) : QObject{parent},
 
     connect(this->_discoveryAgent, SIGNAL(deviceDiscovered(QBluetoothDeviceInfo)), this, SLOT(captureDeviceProperties(QBluetoothDeviceInfo)));
     connect(this->_discoveryAgent, SIGNAL(finished()), this, SLOT(searchFinished()));
+    connect(this->_discoveryAgent, SIGNAL(error(QBluetoothDeviceDiscoveryAgent::Error error)), this, SLOT(searchError(QBluetoothDeviceDiscoveryAgent::Error error)));
 
     connect(this->_socket, SIGNAL(connected()), this, SLOT(connectionEstablished()));
     connect(this->_socket, SIGNAL(disconnected()), this, SLOT(connectionInterrupted()));
@@ -84,6 +91,8 @@ AppCore::~AppCore()
 
     _settings.setValue("msInLogs", _msInLogs);
     _settings.setValue("cmdType", static_cast<qint16>(_cmdType));
+    _settings.setValue("pauseMS", _pauseMS);
+    _settings.setValue("timeoutMS", _timeoutMS);
     _settings.sync();
 
 #ifdef Q_OS_ANDROID
@@ -101,6 +110,18 @@ void AppCore::copyToBuffer(QString text)
 void AppCore::setCmdType(qint16 cmdTypeFromQml)
 {
     _cmdType = static_cast<CmdType>(cmdTypeFromQml);
+}
+
+void AppCore::setPauseMS(quint16 pauseMS)
+{
+    _pauseMS = pauseMS;
+    qDebug() << _pauseMS;
+}
+
+void AppCore::setTimeoutMS(quint32 timeoutMS)
+{
+    _timeoutMS = timeoutMS;
+    qDebug() <<  _timeoutMS;
 }
 
 void AppCore::setAppSettings(bool ms)
@@ -212,6 +233,13 @@ void AppCore::sockectReadyToRead()
     }
 }
 
+void AppCore::searchError(QBluetoothDeviceDiscoveryAgent::Error error)
+{
+     qDebug() << error;
+     addToLogs(static_cast<QString>(error));
+     emit sendToQml("Error:" + static_cast<QString>(error));
+}
+
 QByteArray AppCore::sendCommand(uint8_t cmd, QByteArray data, uint8_t addr)
 {
     size_t sendSize = _wake.dataPrepare(cmd, (uint8_t*)data.data(), data.length(), addr);
@@ -230,12 +258,12 @@ QByteArray AppCore::sendCommand(uint8_t cmd, QByteArray data, uint8_t addr)
             _reqCmd = cmd;
 
             size_t timeout = 0;
-            while(_reqIsActive && timeout < TIMEOUT_MS)
+            while(_reqIsActive && timeout < _timeoutMS)
             {
                 lock.unlock();
-                pause(PAUSE_MS);
+                pause(_pauseMS);
                 lock.lock();
-                timeout += PAUSE_MS;
+                timeout += _pauseMS;
             }
 
             if (!_reqIsActive)

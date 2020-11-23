@@ -1,10 +1,10 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
-
+import QtQuick.Window 2.15
 
 Page {
-    width: 360
-    height: 560
+    width: Qt.platform.os === "windows" ? 360 : Screen.desktopAvailableWidth
+    height: Qt.platform.os === "windows" ? 560 : Screen.desktopAvailableHeight - toolBar.height
 
     Label {
         text: logsListModel.count > 0 ? "" : "Logs will be here"

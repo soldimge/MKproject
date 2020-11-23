@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import Qt.labs.settings 1.0
+import QtQuick.Window 2.15
 //import QtQuick.Controls.Styles 1.4
 
 Page {
@@ -14,8 +15,8 @@ Page {
     property alias settings: settings
     property alias tumblerOutput: tumblerOutput
 
-    width: 360
-    height: 560
+    width: Qt.platform.os === "windows" ? 360 : Screen.desktopAvailableWidth
+    height: Qt.platform.os === "windows" ? 560 : Screen.desktopAvailableHeight - toolBar.height
     id: hpage
 
     Settings {
@@ -146,6 +147,9 @@ Page {
                     toolButton2.enabled = true
                     outText.text = "Search finished"
                     comboBox.displayText = "Choose device"
+                    if (stackView.depth === 1)
+                        comboBox.popup.visible = true
+                    toolButton4.hoverEnabled = true
                 }
     }
 
@@ -176,7 +180,6 @@ Page {
 //        visible: true
         id: comboBox
         model: listModel
-//        model: ["ASCII", "HEX", "DEC"]
         anchors.top: button.bottom
         anchors.topMargin: -6
         height: button.height
@@ -208,7 +211,7 @@ Page {
                 }
 
                 contentItem: Text {
-                    text: comboBox.displayText
+                    text: Qt.platform.os === "windows" ? comboBox.displayText : comboBox.displayText == "Choose device" ? comboBox.displayText : comboBox.displayText.substring(0, comboBox.displayText.indexOf("\t"))
                     color: "#d7d6d5"
                     font.pointSize: 14
                     verticalAlignment: Text.AlignVCenter
@@ -230,8 +233,8 @@ Page {
         onActivated:
         {
             comboBox.displayText = comboBox.model[comboBox.currentIndex]
-            backEnd.connect_toDevice_clicked(comboBox.displayText);
-            toolButton2Pic.source = "qrc:/images/bluetooth_on.png";
+            Qt.platform.os === "windows" ? backEnd.connect_toDevice_clicked(comboBox.displayText) : backEnd.connect_toDevice_clicked(comboBox.displayText.substring(0, comboBox.displayText.indexOf("\t")))
+            toolButton2Pic.source = "qrc:/images/bluetooth_on.png"
         }
     }
 
@@ -324,7 +327,7 @@ Page {
                                 currentIndex: tumblerOutput.highlightedIndex
                             }
                         }
-        currentIndex: settings.indx2FromSettings
+        currentIndex: settings.indxFromSettings2
         onActivated:
         {
 //            tumblerOutput.displayText = tumblerOutput.model[tumblerOutput.currentIndex]

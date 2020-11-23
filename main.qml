@@ -1,10 +1,11 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+import QtQuick.Window 2.15
 
 ApplicationWindow {
     id: window
-    width: 360
-    height: 640
+    width: Qt.platform.os === "windows" ? 360 : Screen.desktopAvailableWidth
+    height: Qt.platform.os === "windows" ? 640 : Screen.desktopAvailableHeight
     visible: true
 
     property string logString
@@ -158,7 +159,6 @@ ApplicationWindow {
              onClicked: {
                  if (toolButton2Pic.source == "qrc:/images/bluetooth_off.png")
                  {
-                     console.log(toolButton2Pic.source);
                      toolButton2Pic.source = "qrc:/images/bluetooth_on.png"
                      backEnd.on_pushButton_Connect_clicked()
                      busyIndicator.visible = true
@@ -166,7 +166,6 @@ ApplicationWindow {
                  }
                  else
                  {
-                     console.log(toolButton2Pic.source);
                      toolButton2Pic.source = "qrc:/images/bluetooth_off.png"
                      backEnd.on_pushButton_Disconnect_clicked()
                      busyIndicator.visible = false
@@ -195,6 +194,7 @@ ApplicationWindow {
                     backEnd.on_pushButton_Search_clicked()
                     toolButton2.enabled = false
                     btDevicesVisible = false
+                    hoverEnabled = false
                 }
                 hoverEnabled: true
 
@@ -216,14 +216,13 @@ ApplicationWindow {
                 id: toolButton3
                 anchors.right: parent.right
 
-                Text {
-                    anchors.centerIn: toolButton3
-                    text: "⋮"
-                    bottomPadding: 5
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-                    font.pointSize: 36
-                    color: "#000000"
+                Image {
+                    id: toolButton3Pic
+                    anchors.fill: parent
+                    anchors.centerIn: parent
+                    fillMode: Image.PreserveAspectFit
+                    source: "qrc:/images/menu.png"
+                    scale: 0.5
                 }
                 onClicked: menu.open()
             }
@@ -268,6 +267,7 @@ ApplicationWindow {
             anchors.fill: parent
 
             ItemDelegate {
+                id: logs
                 text: qsTr("Page with logs")
                 width: parent.width
                 onClicked: {
@@ -284,6 +284,7 @@ ApplicationWindow {
 //                }
 //            }
             ItemDelegate {
+                id: appSettings
                 text: qsTr("AppSettings")
                 width: parent.width
                 onClicked: {

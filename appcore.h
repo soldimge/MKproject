@@ -41,6 +41,8 @@ public:
     Q_INVOKABLE void copyToBuffer(QString);
     Q_INVOKABLE void setAppSettings(bool);
     Q_INVOKABLE void setCmdType(qint16);
+    Q_INVOKABLE void setPauseMS(quint16);
+    Q_INVOKABLE void setTimeoutMS(quint32);
 
 private slots:
     void captureDeviceProperties(const QBluetoothDeviceInfo &device);
@@ -48,6 +50,7 @@ private slots:
     void connectionEstablished();
     void connectionInterrupted();
     void sockectReadyToRead();
+    void searchError(QBluetoothDeviceDiscoveryAgent::Error error);
 
 signals:
     void sendToQml(QString mes);
@@ -70,6 +73,9 @@ private:
     CmdType _cmdType;
     QSettings _settings;
     std::mutex _mtx;
+    quint16 _pauseMS;
+    quint32 _timeoutMS;
+
 #ifdef Q_OS_ANDROID
     QBluetoothLocalDevice *_localDevice;
 #endif
