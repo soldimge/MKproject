@@ -78,6 +78,7 @@ private:
 
 #ifdef Q_OS_ANDROID
     QBluetoothLocalDevice *_localDevice;
+    bool _btWasOn;
 #endif
 
     QByteArray sendCommand(uint8_t cmd, QByteArray data, uint8_t addr = 0);

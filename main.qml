@@ -46,7 +46,12 @@ ApplicationWindow {
 
         onSendToQml: {
             if (mes == "Connected")
-                busyIndicator.visible = false
+                busyIndicator.visible = false      
+            else if (mes == "Disconnected")
+            {
+                toolButton2Pic.source = "qrc:/images/bluetooth_off.png"
+                toolButton2.enabled = false
+            }
             outText.text = mes
         }
     }
@@ -156,21 +161,23 @@ ApplicationWindow {
              anchors.right: toolButton3.left
              anchors.rightMargin: toolButton2.height/6
              flat: true
+             enabled: false
              onClicked: {
-                 if (toolButton2Pic.source == "qrc:/images/bluetooth_off.png")
-                 {
-                     toolButton2Pic.source = "qrc:/images/bluetooth_on.png"
-                     backEnd.on_pushButton_Connect_clicked()
-                     busyIndicator.visible = true
-                     toolButton4.enabled = false
-                 }
-                 else
-                 {
+//                 if (toolButton2Pic.source == "qrc:/images/bluetooth_off.png")
+//                 {
+//                     toolButton2Pic.source = "qrc:/images/bluetooth_on.png"
+////                     backEnd.on_pushButton_Connect_clicked()
+//                     busyIndicator.visible = true
+//                     toolButton4.enabled = false
+//                 }
+//                 else
+//                 {
                      toolButton2Pic.source = "qrc:/images/bluetooth_off.png"
                      backEnd.on_pushButton_Disconnect_clicked()
                      busyIndicator.visible = false
                      toolButton4.enabled = true
-                 }
+                     toolButton2.enabled = false
+//                 }
              }
         }
 
@@ -192,7 +199,8 @@ ApplicationWindow {
                     toolButton4.enabled = false
                     busyIndicator.visible = true
                     backEnd.on_pushButton_Search_clicked()
-                    toolButton2.enabled = false
+                    toolButton2.enabled = true
+                    toolButton2Pic.source = "qrc:/images/bluetooth_on.png"
                     btDevicesVisible = false
                     hoverEnabled = false
                 }

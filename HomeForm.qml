@@ -45,7 +45,7 @@ Page {
         anchors.bottom: rectangle.bottom
         anchors.bottomMargin: -4
         anchors.top: parent.top
-        anchors.topMargin: 20      
+        anchors.topMargin: 10
     }
 
     Text {
@@ -89,8 +89,8 @@ Page {
         anchors.left: rectangle3.right
         anchors.rightMargin: 8
         anchors.leftMargin: 10
-        anchors.top: parent.top
-        anchors.topMargin: height*2
+        anchors.top: tumbler.bottom
+//        anchors.topMargin: height*2
         height: parent.height/16
         color: "#d7d6d5"
         radius: 3
@@ -157,6 +157,7 @@ Page {
         id: button
         anchors.left: parent.left
         anchors.top: frame.bottom
+        anchors.bottom: button1.bottom
         anchors.leftMargin: 4
         text: "CLEAR"
         flat: true
@@ -182,7 +183,7 @@ Page {
         model: listModel
         anchors.top: button.bottom
         anchors.topMargin: -6
-        height: button.height
+        height: rectangle.height * 1.4
         anchors.left: parent.left
         anchors.leftMargin: 4
         anchors.right: parent.right
@@ -245,10 +246,10 @@ Page {
     ComboBox {
         id: tumbler
         anchors.right: rectangle.right
-        anchors.bottom: rectangle.top
+        height: comboBox.height
         flat: true
         anchors.top: frame.top
-        width: button1.width*1.6
+        anchors.left: button1.left
         background: Rectangle
             {
                 radius: 3
@@ -286,7 +287,7 @@ Page {
         anchors.bottom: parent.bottom
         flat: true
         height: tumbler.height
-        width: button1.width*1.6
+        width: tumbler.width
         background: Rectangle
                 {
                     radius: 3
@@ -360,16 +361,20 @@ Page {
     Button {
         id: button1
         anchors.right: frame.right
-        anchors.bottom: button.bottom
+//        anchors.bottom: button.bottom
         anchors.top: button.top
+        width: parent.width / 3.2
+        height: tumbler.height * 1.2
         text: "SEND"
         flat: true
         highlighted: true
         font.pointSize: 16
+        enabled: outText.text === "Connected" ? true : false
         onClicked:
         {
             backEnd.sendMessageToDevice(cmdInput.text, textInput.text, tumbler.currentIndex)
         }
+
         hoverEnabled: true
 
         ToolTip.delay: 1000
@@ -384,6 +389,7 @@ Page {
         anchors.left: parent.left
         anchors.leftMargin: 4
         anchors.bottom: parent.bottom
+        anchors.top: tumblerOutput.top
         flat: true
 
         font.pointSize: 16

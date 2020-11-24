@@ -57,20 +57,27 @@ QString convertBytesToString(QByteArray array, CmdType messageType)
 
 AppCore::AppCore(QObject *parent) : QObject{parent},
                                     _reqIsActive{0},
-                                    _clipboard{QGuiApplication::clipboard()}/*,
-                                    _pauseMS{20},
-                                    _timeoutMS{1000}*/
+                                    _clipboard{QGuiApplication::clipboard()}
 {
     _msInLogs = _settings.value("msInLogs").toBool();
     _cmdType = static_cast<CmdType>(_settings.value("cmdType").toInt());
     _pauseMS = _settings.value("pauseMS").toInt() != 0 ? _settings.value("pauseMS").toInt() : PAUSE_MS;
     _timeoutMS = _settings.value("timeoutMS").toInt() != 0 ? _settings.value("timeoutMS").toInt() : TIMEOUT_MS;
-    qDebug() <<  _timeoutMS;
+    qDebug() << _timeoutMS;
     qDebug() << _pauseMS;
 
 #ifdef Q_OS_ANDROID
     _localDevice = new QBluetoothLocalDevice(this);
-    _localDevice->powerOn();
+    qDebug() << "_localDevice->hostMode() "<< _localDevice->hostMode();
+
+    if (_localDevice->hostMode() == QBluetoothLocalDevice::HostPoweredOff)
+    {
+        _btWasOn = false;
+        _localDevice->powerOn();
+    }
+    else
+        _btWasOn = true;
+
 #endif
 
     _discoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
@@ -95,8 +102,9 @@ AppCore::~AppCore()
     _settings.setValue("timeoutMS", _timeoutMS);
     _settings.sync();
 
-#ifdef Q_OS_ANDROID
-    _localDevice->setHostMode(QBluetoothLocalDevice::HostPoweredOff);
+#ifdef Q_OS_ANDROID  
+    if( _btWasOn == false)
+        _localDevice->setHostMode(QBluetoothLocalDevice::HostPoweredOff);
 #endif
 
     delete _discoveryAgent;
@@ -203,8 +211,8 @@ void AppCore::connectionEstablished()
 
 void AppCore::connectionInterrupted()
 {
-    addToLogs("Connection interrupted");
-    emit sendToQml("Connection interrupted");
+    addToLogs("Disconnected");
+    emit sendToQml("Disconnected");
 }
 
 void AppCore::sockectReadyToRead()
@@ -309,7 +317,7 @@ void AppCore::on_pushButton_Connect_clicked()
 
 void AppCore::connect_toDevice_clicked(QString name)
 {
-    on_pushButton_Disconnect_clicked();
+//    on_pushButton_Disconnect_clicked();
     addToLogs("Initialising connection");
     emit sendToQml("Initialising connection");
     static const QString serviceUuid(QStringLiteral("00001101-0000-1000-8000-00805F9B34FB"));
