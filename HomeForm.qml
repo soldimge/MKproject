@@ -91,7 +91,7 @@ Page {
         anchors.leftMargin: 10
         anchors.top: tumbler.bottom
 //        anchors.topMargin: height*2
-        height: parent.height/16
+        height: parent.width/10
         color: "#d7d6d5"
         radius: 3
         TextInput {
@@ -214,7 +214,7 @@ Page {
                 contentItem: Text {
                     text: Qt.platform.os === "windows" ? comboBox.displayText : comboBox.displayText == "Choose device" ? comboBox.displayText : comboBox.displayText.substring(0, comboBox.displayText.indexOf("\t"))
                     color: "#d7d6d5"
-                    font.pointSize: 14
+                    font.pointSize: Qt.platform.os === "windows" ? 14 : 16
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
                 }
@@ -234,8 +234,9 @@ Page {
         onActivated:
         {
             comboBox.displayText = comboBox.model[comboBox.currentIndex]
-            Qt.platform.os === "windows" ? backEnd.connect_toDevice_clicked(comboBox.displayText) : backEnd.connect_toDevice_clicked(comboBox.displayText.substring(0, comboBox.displayText.indexOf("\t")))
+            Qt.platform.os === "windows" ? backEnd.connectToDevice(comboBox.displayText) : backEnd.connectToDevice(comboBox.displayText.substring(0, comboBox.displayText.indexOf("\t")))
             toolButton2Pic.source = "qrc:/images/bluetooth_on.png"
+            toolButton4.enabled = true
         }
     }
 
@@ -256,7 +257,9 @@ Page {
                 color: "#11ffffff"
                 border.width: 0
             }
+        currentIndex: settings.indxFromSettings
         model: ["ASCII", "HEX", "DEC"]
+        displayText: currentIndex === -1 ? "ASCII" : tumbler.model[settings.indxFromSettings]
         delegate: ItemDelegate {
                             width: tumbler.width
                             contentItem: Text {
@@ -277,7 +280,6 @@ Page {
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
                         }
-        currentIndex: settings.indxFromSettings
         }
 
     ComboBox {
@@ -294,7 +296,9 @@ Page {
                     color: "#11ffffff"
                     border.width: 0
                 }
+        currentIndex: settings.indxFromSettings2
         model: ["ASCII", "HEX", "DEC"]
+        displayText: currentIndex === -1 ? "ASCII" : tumblerOutput.model[settings.indxFromSettings2]
         delegate: ItemDelegate {
                             width: tumblerOutput.width
                             contentItem: Text {
@@ -328,7 +332,6 @@ Page {
                                 currentIndex: tumblerOutput.highlightedIndex
                             }
                         }
-        currentIndex: settings.indxFromSettings2
         onActivated:
         {
 //            tumblerOutput.displayText = tumblerOutput.model[tumblerOutput.currentIndex]

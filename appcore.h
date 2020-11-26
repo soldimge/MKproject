@@ -33,10 +33,9 @@ class AppCore : public QObject
 public:
     AppCore(QObject *parent = nullptr);
     ~AppCore();
-    Q_INVOKABLE void on_pushButton_Connect_clicked();
-    Q_INVOKABLE void on_pushButton_Search_clicked();
-    Q_INVOKABLE void connect_toDevice_clicked(QString);
-    Q_INVOKABLE void on_pushButton_Disconnect_clicked();
+    Q_INVOKABLE void btSearch();
+    Q_INVOKABLE void connectToDevice(QString);
+    Q_INVOKABLE void btDisconnect();
     Q_INVOKABLE void sendMessageToDevice(QString, QString, qint16);
     Q_INVOKABLE void copyToBuffer(QString);
     Q_INVOKABLE void setAppSettings(bool);
@@ -50,7 +49,6 @@ private slots:
     void connectionEstablished();
     void connectionInterrupted();
     void sockectReadyToRead();
-    void searchError(QBluetoothDeviceDiscoveryAgent::Error error);
 
 signals:
     void sendToQml(QString mes);

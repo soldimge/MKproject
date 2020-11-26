@@ -8,6 +8,11 @@ ApplicationWindow {
     height: Qt.platform.os === "windows" ? 640 : Screen.desktopAvailableHeight
     visible: true
 
+    minimumWidth : width
+    minimumHeight : height
+    maximumHeight : height
+    maximumWidth : width
+
     property string logString
     property int ms
     property int tumblerIndx
@@ -52,7 +57,48 @@ ApplicationWindow {
                 toolButton2Pic.source = "qrc:/images/bluetooth_off.png"
                 toolButton2.enabled = false
             }
+            else if (mes == "Search not possible due to turned off Location service")
+            {
+                dialError.visible = true
+            }
+
             outText.text = mes
+        }
+    }
+
+    Dialog {
+        id: dialError
+        visible: false
+        title: "Search not possible due to\nturned off Location service"
+        modal: true
+        Overlay.modal: Rectangle {
+                    color: "#aacfdbe7"
+                }
+        x: (parent.width - width) / 2
+        y: (parent.height - height) / 2
+
+        Button {
+                flat: true
+                highlighted: true
+                width: dialError.width
+                anchors.left: parent.left
+                anchors.right: parent.right
+                onClicked: dialError.visible = false
+
+                Text {
+                    text: "Close"
+                    font.pointSize: Qt.platform.os === "windows" ? 12 : 16
+                    color: "#d7d6d5"
+                    anchors.centerIn: parent
+                }
+
+        }
+
+        onClosed: {
+            toolButton2Pic.source = "qrc:/images/bluetooth_off.png"
+            toolButton2.enabled = false
+            busyIndicator.visible = false
+            toolButton4.enabled = true
         }
     }
 
@@ -66,40 +112,34 @@ ApplicationWindow {
                 }
         x: (parent.width - width) / 2
         y: (parent.height - height) / 2
-        contentItem: Rectangle {
-            implicitWidth: 130
-            implicitHeight: 40
-            color: "#273354"
-            Button {
-                id: b1
-                flat: true
-                highlighted: true
-                anchors.right: parent.right
-                anchors.bottom: parent.bottom
-                onClicked:
-                {
-                    Qt.callLater(Qt.quit)
-                }
-                Text {
-                    text: "Yes"
-                    font.pointSize: Qt.platform.os === "windows" ? 12 : 16
-                    color: "#d7d6d5"
-                    anchors.centerIn: parent
-                }
-            }
-            Button {
-                flat: true
-                highlighted: true
-                anchors.left: parent.left
-                anchors.bottom: parent.bottom
-                onClicked: dial.visible = false
+
+        DialogButtonBox {
+                Button {
+                    flat: true
+                    highlighted: true
+                    onClicked: dial.visible = false
                 Text {
                     text: "No"
                     font.pointSize: Qt.platform.os === "windows" ? 12 : 16
                     color: "#d7d6d5"
                     anchors.centerIn: parent
                 }
-            }
+             }
+                Button {
+                    id: b1
+                    flat: true
+                    highlighted: true
+                    onClicked:
+                    {
+                        Qt.callLater(Qt.quit)
+                    }
+                    Text {
+                        text: "Yes"
+                        font.pointSize: Qt.platform.os === "windows" ? 12 : 16
+                        color: "#d7d6d5"
+                        anchors.centerIn: parent
+                    }
+             }
         }
     }
 
@@ -166,14 +206,14 @@ ApplicationWindow {
 //                 if (toolButton2Pic.source == "qrc:/images/bluetooth_off.png")
 //                 {
 //                     toolButton2Pic.source = "qrc:/images/bluetooth_on.png"
-////                     backEnd.on_pushButton_Connect_clicked()
+////                     backEnd.btConnect()
 //                     busyIndicator.visible = true
 //                     toolButton4.enabled = false
 //                 }
 //                 else
 //                 {
                      toolButton2Pic.source = "qrc:/images/bluetooth_off.png"
-                     backEnd.on_pushButton_Disconnect_clicked()
+                     backEnd.btDisconnect()
                      busyIndicator.visible = false
                      toolButton4.enabled = true
                      toolButton2.enabled = false
@@ -198,7 +238,7 @@ ApplicationWindow {
                 {
                     toolButton4.enabled = false
                     busyIndicator.visible = true
-                    backEnd.on_pushButton_Search_clicked()
+                    backEnd.btSearch()
                     toolButton2.enabled = true
                     toolButton2Pic.source = "qrc:/images/bluetooth_on.png"
                     btDevicesVisible = false

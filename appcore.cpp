@@ -66,6 +66,17 @@ AppCore::AppCore(QObject *parent) : QObject{parent},
     qDebug() << _timeoutMS;
     qDebug() << _pauseMS;
 
+    _discoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
+//    _discoveryAgent->setLowEnergyDiscoveryTimeout(60000);
+    _socket = new QBluetoothSocket(QBluetoothServiceInfo::RfcommProtocol, this);
+
+    connect(this->_discoveryAgent, SIGNAL(deviceDiscovered(QBluetoothDeviceInfo)), this, SLOT(captureDeviceProperties(QBluetoothDeviceInfo)));
+    connect(this->_discoveryAgent, SIGNAL(finished()), this, SLOT(searchFinished()));
+
+    connect(this->_socket, SIGNAL(connected()), this, SLOT(connectionEstablished()));
+    connect(this->_socket, SIGNAL(disconnected()), this, SLOT(connectionInterrupted()));
+    connect(this->_socket, SIGNAL(readyRead()), this, SLOT(sockectReadyToRead()));
+
 #ifdef Q_OS_ANDROID
     _localDevice = new QBluetoothLocalDevice(this);
     qDebug() << "_localDevice->hostMode() "<< _localDevice->hostMode();
@@ -78,23 +89,20 @@ AppCore::AppCore(QObject *parent) : QObject{parent},
     else
         _btWasOn = true;
 
+    connect(this->_discoveryAgent, QOverload<QBluetoothDeviceDiscoveryAgent::Error>::of(&QBluetoothDeviceDiscoveryAgent::error), [=](QBluetoothDeviceDiscoveryAgent::Error error)
+    {
+        qDebug() << "error: "<< error;
+        addToLogs("Search not possible due to turned off\nLocation service");
+        emit sendToQml("Search not possible due to turned off Location service");
+//        this->_socket->disconnectFromService();
+        this->_discoveryAgent->stop();
+    });
 #endif
-
-    _discoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
-    _socket = new QBluetoothSocket(QBluetoothServiceInfo::RfcommProtocol, this);
-
-    connect(this->_discoveryAgent, SIGNAL(deviceDiscovered(QBluetoothDeviceInfo)), this, SLOT(captureDeviceProperties(QBluetoothDeviceInfo)));
-    connect(this->_discoveryAgent, SIGNAL(finished()), this, SLOT(searchFinished()));
-    connect(this->_discoveryAgent, SIGNAL(error(QBluetoothDeviceDiscoveryAgent::Error error)), this, SLOT(searchError(QBluetoothDeviceDiscoveryAgent::Error error)));
-
-    connect(this->_socket, SIGNAL(connected()), this, SLOT(connectionEstablished()));
-    connect(this->_socket, SIGNAL(disconnected()), this, SLOT(connectionInterrupted()));
-    connect(this->_socket, SIGNAL(readyRead()), this, SLOT(sockectReadyToRead()));
 }
 
 AppCore::~AppCore()
 {
-    on_pushButton_Disconnect_clicked();
+    btDisconnect();
 
     _settings.setValue("msInLogs", _msInLogs);
     _settings.setValue("cmdType", static_cast<qint16>(_cmdType));
@@ -107,7 +115,7 @@ AppCore::~AppCore()
         _localDevice->setHostMode(QBluetoothLocalDevice::HostPoweredOff);
 #endif
 
-    delete _discoveryAgent;
+//    delete _discoveryAgent;
 }
 
 void AppCore::copyToBuffer(QString text)
@@ -241,13 +249,6 @@ void AppCore::sockectReadyToRead()
     }
 }
 
-void AppCore::searchError(QBluetoothDeviceDiscoveryAgent::Error error)
-{
-     qDebug() << error;
-     addToLogs(static_cast<QString>(error));
-     emit sendToQml("Error:" + static_cast<QString>(error));
-}
-
 QByteArray AppCore::sendCommand(uint8_t cmd, QByteArray data, uint8_t addr)
 {
     size_t sendSize = _wake.dataPrepare(cmd, (uint8_t*)data.data(), data.length(), addr);
@@ -277,12 +278,14 @@ QByteArray AppCore::sendCommand(uint8_t cmd, QByteArray data, uint8_t addr)
             if (!_reqIsActive)
             {
                 addToLogs("Send message success");
+                emit sendToQml("Send message success");
                 //success recieving
                 return _answer;
             }
             else
             {
                 addToLogs("Send message error: timeout");
+                emit sendToQml("Send message error: timeout");
                 _reqIsActive = false;
                 //error timeout
             }
@@ -296,7 +299,7 @@ QByteArray AppCore::sendCommand(uint8_t cmd, QByteArray data, uint8_t addr)
     return nullptr;
 }
 
-void AppCore::on_pushButton_Search_clicked()
+void AppCore::btSearch()
 {
     addToLogs("Search started");
     emit sendToQml("Search started");
@@ -305,19 +308,9 @@ void AppCore::on_pushButton_Search_clicked()
     connect(this->_discoveryAgent, SIGNAL(deviceDiscovered(QBluetoothDeviceInfo)), this, SLOT(captureDeviceProperties(QBluetoothDeviceInfo)));
 }
 
-void AppCore::on_pushButton_Connect_clicked()
+void AppCore::connectToDevice(QString name)
 {
-    addToLogs("Initialising connection");
-    emit sendToQml("Initialising connection");
-    static const QString serviceUuid(QStringLiteral("00001101-0000-1000-8000-00805F9B34FB"));
-    this->_socket->connectToService(QBluetoothAddress(QBluetoothAddress()), QBluetoothUuid(serviceUuid), QIODevice::ReadWrite);
-    addToLogs("Connecting to device/address: " /*+ portList.first() + " / " + portList.last()*/);
-    emit sendToQml("Connecting to device");
-}
-
-void AppCore::connect_toDevice_clicked(QString name)
-{
-//    on_pushButton_Disconnect_clicked();
+    btDisconnect();
     addToLogs("Initialising connection");
     emit sendToQml("Initialising connection");
     static const QString serviceUuid(QStringLiteral("00001101-0000-1000-8000-00805F9B34FB"));
@@ -363,10 +356,11 @@ void AppCore::sendMessageToDevice(QString idCmd, QString message, qint16 message
     sendCommand(idCmd.toInt(), sendArray);
 }
 
-void AppCore::on_pushButton_Disconnect_clicked()
+void AppCore::btDisconnect()
 {
     addToLogs("Closing connection");
     emit sendToQml("Closing connection");
     this->_socket->disconnectFromService();
+    addToLogs("Disconnected");
     emit sendToQml("Disconnected");
 }

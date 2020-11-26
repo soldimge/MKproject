@@ -27,7 +27,7 @@ Page {
         clip: true
         delegate:
             Text {
-                font.pointSize: Qt.platform.os === "windows" ? 10 : 14
+                font.pointSize: Qt.platform.os === "windows" ? 10 : 13
                 text: modelData
                 color: "#d7d6d5"
                 wrapMode: Text.Wrap
