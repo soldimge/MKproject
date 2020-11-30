@@ -115,7 +115,6 @@ AppCore::~AppCore()
         _localDevice->setHostMode(QBluetoothLocalDevice::HostPoweredOff);
 #endif
 
-//    delete _discoveryAgent;
 }
 
 void AppCore::copyToBuffer(QString text)
@@ -130,14 +129,20 @@ void AppCore::setCmdType(qint16 cmdTypeFromQml)
 
 void AppCore::setPauseMS(quint16 pauseMS)
 {
-    _pauseMS = pauseMS;
-    qDebug() << _pauseMS;
+    if (_pauseMS != pauseMS)
+    {
+        _pauseMS = pauseMS;
+        addToLogs("Pause changed to " + QString::number(_pauseMS) + " ms");
+    }
 }
 
 void AppCore::setTimeoutMS(quint32 timeoutMS)
 {
-    _timeoutMS = timeoutMS;
-    qDebug() <<  _timeoutMS;
+    if (_timeoutMS != timeoutMS)
+    {
+        _timeoutMS = timeoutMS;
+        addToLogs("Timeout changed to " + QString::number(_timeoutMS) + " ms");
+    }
 }
 
 void AppCore::setAppSettings(bool ms)
