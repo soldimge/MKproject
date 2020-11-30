@@ -28,7 +28,7 @@ Page {
             {
                 id: msCS
                 text: qsTr("Show ms in logs")
-                checkState: appSetSettings.checkStateFromSettings
+                checkState: appSetSettings.value("checkStateFromSettings", false)
                 onCheckStateChanged:
                 {
                     backEnd.setAppSettings(msCS.checkState)
@@ -62,7 +62,7 @@ Page {
                 from: 100
                 anchors.rightMargin: 10
                 orientation: Qt.Horizontal
-                value: appSetSettings.timeoutMsFromSettings === 0 ? 1000 : appSetSettings.timeoutMsFromSettings
+                value: appSetSettings.value("timeoutMsFromSettings" , 1000)
                 stepSize : 100
                 snapMode : Slider.SnapAlways
                 onValueChanged: {
@@ -87,7 +87,7 @@ Page {
             from: 5
             anchors.rightMargin: 10
             orientation: Qt.Horizontal
-            value: appSetSettings.pauseMsFromSettings === 0 ? 20 : appSetSettings.pauseMsFromSettings
+            value: appSetSettings.value("pauseMsFromSettings" , 20)
             stepSize : 5
             snapMode : Slider.SnapAlways
             onValueChanged: {

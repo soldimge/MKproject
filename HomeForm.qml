@@ -2,7 +2,6 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import Qt.labs.settings 1.0
 import QtQuick.Window 2.15
-//import QtQuick.Controls.Styles 1.4
 
 Page {
     property alias hpage: hpage
@@ -257,9 +256,9 @@ Page {
                 color: "#11ffffff"
                 border.width: 0
             }
-        currentIndex: settings.indxFromSettings
+        currentIndex: settings.value("indxFromSettings", 0)
         model: ["ASCII", "HEX", "DEC"]
-        displayText: currentIndex === -1 ? "ASCII" : tumbler.model[settings.indxFromSettings]
+        displayText: tumbler.model[settings.indxFromSettings]
         delegate: ItemDelegate {
                             width: tumbler.width
                             contentItem: Text {
@@ -296,9 +295,9 @@ Page {
                     color: "#11ffffff"
                     border.width: 0
                 }
-        currentIndex: settings.indxFromSettings2
+        currentIndex: settings.value("indxFromSettings2", 0)
         model: ["ASCII", "HEX", "DEC"]
-        displayText: currentIndex === -1 ? "ASCII" : tumblerOutput.model[settings.indxFromSettings2]
+        displayText: tumblerOutput.model[settings.indxFromSettings2]
         delegate: ItemDelegate {
                             width: tumblerOutput.width
                             contentItem: Text {
@@ -334,7 +333,6 @@ Page {
                         }
         onActivated:
         {
-//            tumblerOutput.displayText = tumblerOutput.model[tumblerOutput.currentIndex]
             backEnd.setCmdType(tumblerOutput.currentIndex)
             tumblerIndx = tumblerOutput.currentIndex
         }
@@ -364,7 +362,6 @@ Page {
     Button {
         id: button1
         anchors.right: frame.right
-//        anchors.bottom: button.bottom
         anchors.top: button.top
         width: parent.width / 3.2
         height: tumbler.height * 1.2

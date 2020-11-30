@@ -59,10 +59,10 @@ AppCore::AppCore(QObject *parent) : QObject{parent},
                                     _reqIsActive{0},
                                     _clipboard{QGuiApplication::clipboard()}
 {
-    _msInLogs = _settings.value("msInLogs").toBool();
-    _cmdType = static_cast<CmdType>(_settings.value("cmdType").toInt());
-    _pauseMS = _settings.value("pauseMS").toInt() != 0 ? _settings.value("pauseMS").toInt() : PAUSE_MS;
-    _timeoutMS = _settings.value("timeoutMS").toInt() != 0 ? _settings.value("timeoutMS").toInt() : TIMEOUT_MS;
+    _msInLogs = _settings.value("msInLogs", false).toBool();
+    _cmdType = static_cast<CmdType>(_settings.value("cmdType", 0).toInt());
+    _pauseMS = _settings.value("pauseMS", PAUSE_MS).toInt();
+    _timeoutMS = _settings.value("timeoutMS", TIMEOUT_MS).toInt();
     qDebug() << _timeoutMS;
     qDebug() << _pauseMS;
 
@@ -251,6 +251,7 @@ void AppCore::sockectReadyToRead()
 
 QByteArray AppCore::sendCommand(uint8_t cmd, QByteArray data, uint8_t addr)
 {
+    std::unique_lock<std::mutex> lock(_mtx); /// to here
     size_t sendSize = _wake.dataPrepare(cmd, (uint8_t*)data.data(), data.length(), addr);
 
     if (this->_socket->isOpen() && this->_socket->isWritable())
@@ -261,7 +262,7 @@ QByteArray AppCore::sendCommand(uint8_t cmd, QByteArray data, uint8_t addr)
 
         if (this->_socket->write((char*)_wake.getSndData(), sendSize) == (qint64)sendSize)
         {
-            std::unique_lock<std::mutex> lock(_mtx);
+//            std::unique_lock<std::mutex> lock(_mtx); /// from here
             _reqIsActive = true;
             _reqAddr = addr;
             _reqCmd = cmd;
