@@ -284,7 +284,7 @@ QByteArray AppCore::sendCommand(uint8_t cmd, QByteArray data, uint8_t addr)
             if (!_reqIsActive)
             {
                 addToLogs("Send message success");
-                emit sendToQml("Send message success");
+//                emit sendToQml("Send message success");
                 //success recieving
                 return _answer;
             }

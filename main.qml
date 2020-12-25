@@ -23,7 +23,7 @@ ApplicationWindow {
 
     onClosing: {
         close.accepted = false
-        dial.visible = true
+        stackView.depth > 1 ? stackView.pop() : dial.open()
     }
 
     ListModel {
@@ -104,43 +104,12 @@ ApplicationWindow {
 
     Dialog {
         id: dial
-        visible: false
         title: "Close and exit?"
         modal: true
-        Overlay.modal: Rectangle {
-                    color: "#aacfdbe7"
-                }
         x: (parent.width - width) / 2
         y: (parent.height - height) / 2
-
-        DialogButtonBox {
-                Button {
-                    flat: true
-                    highlighted: true
-                    onClicked: dial.visible = false
-                Text {
-                    text: "No"
-                    font.pointSize: Qt.platform.os === "windows" ? 12 : 16
-                    color: "#d7d6d5"
-                    anchors.centerIn: parent
-                }
-             }
-                Button {
-                    id: b1
-                    flat: true
-                    highlighted: true
-                    onClicked:
-                    {
-                        Qt.callLater(Qt.quit)
-                    }
-                    Text {
-                        text: "Yes"
-                        font.pointSize: Qt.platform.os === "windows" ? 12 : 16
-                        color: "#d7d6d5"
-                        anchors.centerIn: parent
-                    }
-             }
-        }
+        standardButtons: Dialog.Ok | Dialog.Cancel
+        onAccepted: Qt.callLater(Qt.quit)
     }
 
     header: ToolBar {

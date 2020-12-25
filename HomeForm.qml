@@ -2,6 +2,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import Qt.labs.settings 1.0
 import QtQuick.Window 2.15
+import QtQuick.Controls.Material 2.2
 
 Page {
     property alias hpage: hpage
@@ -74,12 +75,13 @@ Page {
     Rectangle {
         id: rectangle2
         anchors.top: comboBox.bottom
-//        anchors.topMargin: 4
+        anchors.topMargin: 3
         anchors.bottom: tumblerOutput.top
-        anchors.left: cmdFrame.left
-        anchors.right: frame.right
+        anchors.bottomMargin: 2
+        anchors.left: rectangle3.left
+        anchors.right: rectangle.right
         color: "#cdd4dc"
-        radius: 3
+        radius: 2
     }
 
     Rectangle {
@@ -92,7 +94,7 @@ Page {
 //        anchors.topMargin: height*2
         height: parent.width/10
         color: "#d7d6d5"
-        radius: 3
+        radius: 2
         TextInput {
             id: textInput
             anchors.fill: rectangle
@@ -154,13 +156,13 @@ Page {
 
     Button {
         id: button
-        anchors.left: parent.left
+        anchors.left: rectangle3.left
         anchors.top: frame.bottom
         anchors.bottom: button1.bottom
-        anchors.leftMargin: 4
+//        anchors.leftMargin: 4
         text: "CLEAR"
-        flat: true
-        highlighted: true
+//        flat: true
+//        highlighted: true
         font.pointSize: 16
         onClicked:
         {
@@ -168,7 +170,8 @@ Page {
             cmdInput.text = ""
         }
         hoverEnabled: true
-
+        Material.background: "#35415f"
+//        Material.foreground: "#d7d6d5"
         ToolTip.delay: 1000
         ToolTip.timeout: 5000
         ToolTip.visible: hovered
@@ -181,18 +184,18 @@ Page {
         id: comboBox
         model: listModel
         anchors.top: button.bottom
-        anchors.topMargin: -6
+        anchors.topMargin: -4
         height: rectangle.height * 1.4
-        anchors.left: parent.left
-        anchors.leftMargin: 4
-        anchors.right: parent.right
-        anchors.rightMargin: 4
+        anchors.left: rectangle3.left
+//        anchors.leftMargin: 4
+        anchors.right: rectangle.right
+//        anchors.rightMargin: 4
         flat: true
         currentIndex: -1
         displayText: "Choose device"
         background: Rectangle
                 {
-                    radius: 3
+                    radius: 2
                     color: "#11ffffff"
                     border.width: 0
                 }
@@ -249,10 +252,11 @@ Page {
         height: comboBox.height
         flat: true
         anchors.top: frame.top
-        anchors.left: button1.left
+//        anchors.left: button1.left
+        width: parent.width / 3.2
         background: Rectangle
             {
-                radius: 3
+                radius: 2
                 color: "#11ffffff"
                 border.width: 0
             }
@@ -283,15 +287,17 @@ Page {
 
     ComboBox {
         id: tumblerOutput
-        anchors.right: parent.right
-        anchors.rightMargin: 4
+        anchors.right: rectangle.right
+//        anchors.rightMargin: 4
         anchors.bottom: parent.bottom
+        anchors.bottomMargin: 10
         flat: true
         height: tumbler.height
-        width: tumbler.width
+//        width: tumbler.width
+        width: parent.width / 3.2
         background: Rectangle
                 {
-                    radius: 3
+                    radius: 2
                     color: "#11ffffff"
                     border.width: 0
                 }
@@ -345,7 +351,7 @@ Page {
         anchors.right: dataText.right
         anchors.top: rectangle.top
         anchors.bottom: rectangle.bottom
-        radius: 3
+        radius: 2
         color: "#d7d6d5"
         TextInput {
             id: cmdInput
@@ -361,13 +367,17 @@ Page {
 
     Button {
         id: button1
-        anchors.right: frame.right
+        anchors.right: rectangle.right
+        anchors.left: button.right
+        anchors.leftMargin: 8
         anchors.top: button.top
-        width: parent.width / 3.2
-        height: tumbler.height * 1.2
-        text: "SEND"
-        flat: true
+        flat: false
         highlighted: true
+//        width: parent.width / 3.2
+        height: tumbler.height
+        text: "SEND"
+//        flat: true
+//        highlighted: true
         font.pointSize: 16
         enabled: outText.text === "Connected" ? true : false
         onClicked:
@@ -381,19 +391,24 @@ Page {
         ToolTip.timeout: 5000
         ToolTip.visible: hovered
         ToolTip.text: qsTr("Send command to device")
+        Material.background: "#9cbdec"
+//        Material.foreground: "#273354"
     }
 
     Button {
         id: button2
         text: "CLEAR"
-        anchors.left: parent.left
-        anchors.leftMargin: 4
+        anchors.left: rectangle3.left
+//        anchors.leftMargin: 4
         anchors.bottom: parent.bottom
+        anchors.bottomMargin: 10
+        highlighted: false
         anchors.top: tumblerOutput.top
-        flat: true
-
+//        flat: true
+        Material.background: "#35415f"
+//        Material.foreground: "#d7d6d5"
         font.pointSize: 16
-        highlighted: true
+//        highlighted: true
         onClicked:
         {
             outTextModel.clear()
