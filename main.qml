@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Window 2.15
+import StatusBar 0.1
 
 ApplicationWindow {
     id: window
@@ -18,6 +19,11 @@ ApplicationWindow {
     property int tumblerIndx
     property int tumblerIndx2
     property bool btDevicesVisible
+
+    StatusBar{
+        theme: StatusBar.Light //dark background WHITE TEXT
+        color: "#9cbdec"
+    }
 
     title: qsTr("LaserApp")
 

@@ -2,7 +2,7 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QtQml/QQmlContext>
-
+#include "statusbar.h"
 #include "appcore.h"
 
 #ifdef Q_OS_ANDROID
@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
 #ifdef Q_OS_ANDROID
     KeepAwake lock;
 #endif
-
+    qmlRegisterType<StatusBar>("StatusBar", 0, 1, "StatusBar");
 //    QtAndroidTools::initializeQmlTools();
 
     app.setOrganizationName("Laser");
