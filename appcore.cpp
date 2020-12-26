@@ -220,6 +220,7 @@ void AppCore::connectionEstablished()
 {
     addToLogs("Connected");
     emit sendToQml("Connected");
+    emit enableSendButton(true);
 }
 
 void AppCore::connectionInterrupted()
@@ -243,7 +244,7 @@ void AppCore::sockectReadyToRead()
             QString logStr = "RX " + convertByteToString(rcvCmd, CmdType::DEC) + ": " + convertBytesToString(rcvArray, _cmdType);
             addToLogs(logStr);
             emit addMes(logStr);
-
+            emit enableSendButton(true);
             std::unique_lock<std::mutex> lock(_mtx);
             if (_reqIsActive && _reqCmd == rcvCmd && _reqAddr == rcvAddr)
             {
@@ -327,6 +328,7 @@ void AppCore::connectToDevice(QString name)
 
 void AppCore::sendMessageToDevice(QString idCmd, QString message, qint16 messageType)
 {
+    emit enableSendButton(false);
     QByteArray sendArray;
 
     if (!message.isEmpty())
@@ -369,4 +371,5 @@ void AppCore::btDisconnect()
     this->_socket->disconnectFromService();
     addToLogs("Disconnected");
     emit sendToQml("Disconnected");
+    emit enableSendButton(false);
 }

@@ -57,7 +57,10 @@ ApplicationWindow {
 
         onSendToQml: {
             if (mes == "Connected")
-                busyIndicator.visible = false      
+            {
+                busyIndicator.visible = false
+                toolButton2.enabled = true
+            }
             else if (mes == "Disconnected")
             {
                 toolButton2Pic.source = "qrc:/images/bluetooth_off.png"

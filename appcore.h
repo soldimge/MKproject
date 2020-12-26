@@ -56,6 +56,7 @@ signals:
     void endOfSearch();
     void addLog(QString log);
     void addMes(QString message);
+    void enableSendButton(bool condition);
 
 private:
     QBluetoothDeviceDiscoveryAgent *_discoveryAgent;

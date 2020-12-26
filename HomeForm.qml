@@ -152,6 +152,9 @@ Page {
                         comboBox.popup.visible = true
                     toolButton4.hoverEnabled = true
                 }
+                onEnableSendButton: {
+                    button1.enabled = condition
+                }
     }
 
     Button {
@@ -371,28 +374,23 @@ Page {
         anchors.left: button.right
         anchors.leftMargin: 8
         anchors.top: button.top
-        flat: false
         highlighted: true
-//        width: parent.width / 3.2
         height: tumbler.height
         text: "SEND"
-//        flat: true
-//        highlighted: true
         font.pointSize: 16
-        enabled: outText.text === "Connected" ? true : false
+//        enabled: outText.text === "Connected" ? true : false
+        enabled: false
         onClicked:
         {
             backEnd.sendMessageToDevice(cmdInput.text, textInput.text, tumbler.currentIndex)
         }
 
         hoverEnabled: true
-
         ToolTip.delay: 1000
         ToolTip.timeout: 5000
         ToolTip.visible: hovered
         ToolTip.text: qsTr("Send command to device")
         Material.background: "#9cbdec"
-//        Material.foreground: "#273354"
     }
 
     Button {
