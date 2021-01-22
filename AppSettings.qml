@@ -6,7 +6,7 @@ import QtQuick.Window 2.15
 import QtQuick.Controls.Material 2.12
 
 Page {
-    title: "AppSettings.qml"
+    title: "Settings"
 
     Settings {
         id: appSetSettings

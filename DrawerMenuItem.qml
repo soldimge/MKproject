@@ -10,6 +10,8 @@ MenuItem {
     property alias image: image.source
     property alias pageName: drawrMenuItem.pageName
     property var pageName
+    property alias pageSource: drawrMenuItem.pageSource
+    property var pageSource
     property bool isActive: stackView.currentItem.title === pageName
 
     Image {
@@ -46,10 +48,10 @@ MenuItem {
         if (name === "Home" && stackView.depth > 1)
         {
             stackView.clear()
-            stackView.push(pageName)
+            stackView.push(pageSource)
         }
         else if (name != "Home")
-            stackView.push(pageName)
+            stackView.push(pageSource)
         drawer.close()
     }
 }

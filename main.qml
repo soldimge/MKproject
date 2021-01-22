@@ -186,8 +186,16 @@ ApplicationWindow {
         contentHeight: toolButton.implicitHeight
 
         Label {
-            text: stackView.depth > 1 ? stackView.currentItem.title : ""
-            anchors.centerIn: parent
+            text: stackView.currentItem.title
+            anchors {
+                top: parent.top
+                right: toolButton4.left
+                left: toolButton.right
+                leftMargin: 20
+                bottom: parent.bottom
+            }
+            verticalAlignment: Text.AlignVCenter
+            font.pointSize: Qt.platform.os === "windows" ? 14 : 20
         }
 
         Text {
@@ -205,7 +213,7 @@ ApplicationWindow {
             font.pointSize: 11
             wrapMode: Text.Wrap
             clip: true
-            visible: stackView.depth > 1 ? false : true
+            visible: false
         }
 
         ToolButton {
@@ -263,7 +271,7 @@ ApplicationWindow {
                     fillMode: Image.PreserveAspectFit
                     source: "qrc:/images/search.png"
                     scale: 0.5
-                    visible: stackView.depth > 1 ? false : true
+//                    visible: stackView.depth > 1 ? false : true
                 }
                 onClicked:
                 {
@@ -350,8 +358,9 @@ ApplicationWindow {
             anchors.fill: parent
             DrawerMenuItem {
                 image: isDarkTheme == true ? "qrc:/images/Drawer/baseline_home_white@4x.png" : "qrc:/images/Drawer/home@4x.png"
-                pageName: "HomeForm.qml"
+                pageName: "Terminal"
                 name: "Home"
+                pageSource: "HomeForm.qml"
             }
             MenuSeparator {
                 width: parent.width
@@ -361,13 +370,15 @@ ApplicationWindow {
             }
             DrawerMenuItem {
                 image: isDarkTheme == true ? "qrc:/images/Drawer/baseline_article_white@4x.png" : "qrc:/images/Drawer/baseline_article_black@4x.png"
-                pageName: "Logs.qml"
+                pageName: "Logs"
                 name: "Page with logs"
+                pageSource: "Logs.qml"
             }
             DrawerMenuItem {
                 image: isDarkTheme == true ? "qrc:/images/Drawer/baseline_settings_white@4x.png" : "qrc:/images/Drawer/baseline_settings_black@4x.png"
-                pageName: "AppSettings.qml"
-                name: "Settings"
+                pageName: "Settings"
+                name: "Settings"       
+                pageSource: "AppSettings.qml"
             }
             MenuSeparator {
                 width: parent.width
@@ -377,8 +388,9 @@ ApplicationWindow {
             }
             DrawerMenuItem {
                 image: isDarkTheme == true ? "qrc:/images/Drawer/helpWhite@4x.png" : "qrc:/images/Drawer/helpBlack@4x.png"
-                pageName: "FAQ.qml"
-                name: "FAQ"
+                pageName: "F.A.Q."
+                name: "F.A.Q."
+                pageSource: "FAQ.qml"
             }
         }
     }

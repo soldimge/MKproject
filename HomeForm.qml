@@ -5,7 +5,7 @@ import QtQuick.Window 2.15
 import QtQuick.Controls.Material 2.2
 
 Page {
-    title: "HomeForm.qml"
+    title: "Terminal"
     property alias hpage: hpage
     property alias textInput: textInput
     property alias button: button
