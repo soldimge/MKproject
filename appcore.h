@@ -14,6 +14,9 @@
 
 #ifdef Q_OS_ANDROID
 #include <QBluetoothLocalDevice>
+#include <QAndroidJniObject>
+#include <QAndroidIntent>
+#include <QtAndroid>
 #endif
 
 constexpr qint32 PAUSE_MS{20};
@@ -42,6 +45,10 @@ public:
     Q_INVOKABLE void setCmdType(qint16);
     Q_INVOKABLE void setPauseMS(quint16);
     Q_INVOKABLE void setTimeoutMS(quint32);
+#ifdef Q_OS_ANDROID
+    Q_INVOKABLE void openSystemBluetoothSettings();
+    Q_INVOKABLE void openSystemLocationSettings();
+#endif
 
 private slots:
     void captureDeviceProperties(const QBluetoothDeviceInfo &device);

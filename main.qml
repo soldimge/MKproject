@@ -2,6 +2,8 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Window 2.15
 import StatusBar 0.1
+import QtQuick.Controls.Material 2.12
+import Qt.labs.settings 1.0
 
 ApplicationWindow {
     id: window
@@ -14,18 +16,46 @@ ApplicationWindow {
     maximumHeight : height
     maximumWidth : width
 
+    Settings {
+            id: mainSettings
+            property alias isDarkThemeSettings: window.isDarkTheme
+        }
+
     property string logString
     property int ms
     property int tumblerIndx
     property int tumblerIndx2
     property bool btDevicesVisible
 
-    StatusBar{
-        theme: StatusBar.Light //dark background WHITE TEXT
-        color: "#9cbdec"
+    property bool isDarkTheme: mainSettings.value("isDarkThemeSettings", true)
+
+    Material.theme: Material.Light
+
+    onIsDarkThemeChanged: {
+        console.log(isDarkTheme)
+        if(isDarkTheme == true) {
+            Material.background = "#273354"
+            Material.foreground = "#d7d6d5"
+            Material.primary = "#9cbdec"
+            Material.accent = "#d7d6d5"
+            statusBar.color = "#9cbdec"
+        }
+        else {
+            Material.background = "#f3f3f3"
+            Material.foreground = "#000000"
+            Material.primary = "#f3f3f3"
+            Material.accent = "#33cc33"
+            statusBar.color = "#f3f3f3"
+        }
     }
 
-    title: qsTr("LaserApp")
+    StatusBar {
+        id: statusBar
+        theme: StatusBar.Light //dark background WHITE TEXT
+        color: isDarkTheme == true ? "#9cbdec" : "#f3f3f3"
+    }
+
+    title: qsTr("Bluetooth Wake Terminal")
 
     onClosing: {
         close.accepted = false
@@ -60,50 +90,80 @@ ApplicationWindow {
             {
                 busyIndicator.visible = false
                 toolButton2.enabled = true
+                outText.text = mes
             }
             else if (mes == "Disconnected")
             {
                 toolButton2Pic.source = "qrc:/images/bluetooth_off.png"
                 toolButton2.enabled = false
+                outText.text = mes
             }
             else if (mes == "Search not possible due to turned off Location service")
             {
                 dialError.visible = true
+            }  
+        }
+    }
+
+    Dialog {
+        id: aboutDialog
+        modal: true
+        focus: true
+        title: "About"
+        x: (parent.width - width) / 2
+        y: (parent.height - height) / 2
+        width: parent.width*0.7
+        contentHeight: aboutColumn.height
+
+        Column {
+            id: aboutColumn
+            spacing: 20
+
+            Label {
+                width: aboutDialog.availableWidth
+                text: "Bluetooth terminal\nwith WAKE Serial Protocol\nfor hc-06/hc-05 & similar\nVersion 0.1"
+                wrapMode: Label.Wrap
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignHCenter
+                font.pixelSize: Qt.platform.os === "windows" ? 12 : 14
             }
 
-            outText.text = mes
+            Label {
+                width: aboutDialog.availableWidth
+                text: "Contact the developer:"
+                    + "<br><style type=\"text/css\"></style><a href=\"mailto:soldimge@gmail.com?subject=Bluetooth terminal%20android%20app\">soldimge@gmail.com</a><br>"
+                wrapMode: Label.Wrap
+                font.pointSize: Qt.platform.os === "windows" ? 10 : 14
+                onLinkActivated: Qt.openUrlExternally(link)
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignHCenter
+            }
         }
     }
 
     Dialog {
         id: dialError
-        visible: false
         title: "Search not possible due to\nturned off Location service"
+        Label {
+            width: aboutDialog.availableWidth
+            text: "Turn on?"
+            wrapMode: Label.Wrap
+            verticalAlignment: Text.AlignVCenter
+            horizontalAlignment: Text.AlignHCenter
+            font.pixelSize: Qt.platform.os === "windows" ? 12 : 14
+        }
         modal: true
-        Overlay.modal: Rectangle {
-                    color: "#aacfdbe7"
-                }
         x: (parent.width - width) / 2
         y: (parent.height - height) / 2
-
-        Button {
-                flat: true
-                highlighted: true
-                width: dialError.width
-                anchors.left: parent.left
-                anchors.right: parent.right
-                onClicked: dialError.visible = false
-
-                Text {
-                    text: "Close"
-                    font.pointSize: Qt.platform.os === "windows" ? 12 : 16
-                    color: "#d7d6d5"
-                    anchors.centerIn: parent
-                }
-
+        standardButtons: Dialog.Ok | Dialog.Cancel
+        onAccepted: {
+            toolButton2Pic.source = "qrc:/images/bluetooth_off.png"
+            toolButton2.enabled = false
+            busyIndicator.visible = false
+            toolButton4.enabled = true
+            backEnd.openSystemLocationSettings()
         }
-
-        onClosed: {
+        onRejected: {
             toolButton2Pic.source = "qrc:/images/bluetooth_off.png"
             toolButton2.enabled = false
             busyIndicator.visible = false
@@ -125,6 +185,11 @@ ApplicationWindow {
         id: toolBar
         contentHeight: toolButton.implicitHeight
 
+        Label {
+            text: stackView.depth > 1 ? stackView.currentItem.title : ""
+            anchors.centerIn: parent
+        }
+
         Text {
             id: outText
             anchors.right: toolButton4.left
@@ -140,6 +205,7 @@ ApplicationWindow {
             font.pointSize: 11
             wrapMode: Text.Wrap
             clip: true
+            visible: stackView.depth > 1 ? false : true
         }
 
         ToolButton {
@@ -161,11 +227,6 @@ ApplicationWindow {
             }
         }
 
-        Label {
-            text: stackView.currentItem.title
-            anchors.centerIn: parent
-        }
-
         ToolButton {
              id: toolButton2
              Image {
@@ -181,15 +242,6 @@ ApplicationWindow {
              flat: true
              enabled: false
              onClicked: {
-//                 if (toolButton2Pic.source == "qrc:/images/bluetooth_off.png")
-//                 {
-//                     toolButton2Pic.source = "qrc:/images/bluetooth_on.png"
-////                     backEnd.btConnect()
-//                     busyIndicator.visible = true
-//                     toolButton4.enabled = false
-//                 }
-//                 else
-//                 {
                      toolButton2Pic.source = "qrc:/images/bluetooth_off.png"
                      backEnd.btDisconnect()
                      busyIndicator.visible = false
@@ -211,6 +263,7 @@ ApplicationWindow {
                     fillMode: Image.PreserveAspectFit
                     source: "qrc:/images/search.png"
                     scale: 0.5
+                    visible: stackView.depth > 1 ? false : true
                 }
                 onClicked:
                 {
@@ -222,12 +275,6 @@ ApplicationWindow {
                     btDevicesVisible = false
                     hoverEnabled = false
                 }
-                hoverEnabled: true
-
-                ToolTip.delay: 1000
-                ToolTip.timeout: 5000
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("Scan BT devices")
             }
 
 
@@ -261,21 +308,31 @@ ApplicationWindow {
 
             MenuItem {
                 id: mit2
-                text: "Open website"
+                text: "About WAKE"
                 onClicked:
                 {
-                    Qt.openUrlExternally("https://github.com/soldimge/MKproject")
+                    Qt.openUrlExternally("http://www.leoniv.diod.club/articles/wake/wake.html")
+                }
+            }
+            MenuItem {
+                highlighted: false
+                text: isDarkTheme == true ? qsTr("Light theme") : qsTr("Standard theme")
+                onTriggered: {
+                    isDarkTheme = (isDarkTheme == true) ? false : true
+                }
+            }
+            MenuItem {
+                highlighted: false
+                text: "About"
+                onTriggered: {
+                    aboutDialog.open()
                 }
             }
             MenuSeparator {
+                width: parent.width
                 padding: 0
                 topPadding: 4
                 bottomPadding: 4
-                contentItem: Rectangle {
-                    implicitWidth: 120
-                    implicitHeight: 1
-                    color: "#0b0d12"
-                }
             }
             MenuItem {
                 text: "Exit"
@@ -286,37 +343,42 @@ ApplicationWindow {
 
     Drawer {
         id: drawer
-        width: window.width * 0.66
+        width: window.width * 0.76
         height: window.height
 
         Column {
             anchors.fill: parent
-
-            ItemDelegate {
-                id: logs
-                text: qsTr("Page with logs")
-                width: parent.width
-                onClicked: {
-                    stackView.push("Logs.qml")
-                    drawer.close()
-                }
+            DrawerMenuItem {
+                image: isDarkTheme == true ? "qrc:/images/Drawer/baseline_home_white@4x.png" : "qrc:/images/Drawer/home@4x.png"
+                pageName: "HomeForm.qml"
+                name: "Home"
             }
-//            ItemDelegate {
-//                text: qsTr("Page 2")
-//                width: parent.width
-//                onClicked: {
-//                    stackView.push("Page2Form.qml")
-//                    drawer.close()
-//                }
-//            }
-            ItemDelegate {
-                id: appSettings
-                text: qsTr("AppSettings")
+            MenuSeparator {
                 width: parent.width
-                onClicked: {
-                    stackView.push("AppSettings.qml")
-                    drawer.close()
-                }
+                padding: 0
+                topPadding: 4
+                bottomPadding: 4
+            }
+            DrawerMenuItem {
+                image: isDarkTheme == true ? "qrc:/images/Drawer/baseline_article_white@4x.png" : "qrc:/images/Drawer/baseline_article_black@4x.png"
+                pageName: "Logs.qml"
+                name: "Page with logs"
+            }
+            DrawerMenuItem {
+                image: isDarkTheme == true ? "qrc:/images/Drawer/baseline_settings_white@4x.png" : "qrc:/images/Drawer/baseline_settings_black@4x.png"
+                pageName: "AppSettings.qml"
+                name: "Settings"
+            }
+            MenuSeparator {
+                width: parent.width
+                padding: 0
+                topPadding: 4
+                bottomPadding: 4
+            }
+            DrawerMenuItem {
+                image: isDarkTheme == true ? "qrc:/images/Drawer/helpWhite@4x.png" : "qrc:/images/Drawer/helpBlack@4x.png"
+                pageName: "FAQ.qml"
+                name: "FAQ"
             }
         }
     }

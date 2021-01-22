@@ -3,8 +3,6 @@
         <file>main.qml</file>
         <file>HomeForm.qml</file>
         <file>Logs.qml</file>
-        <file>Page2Form.qml</file>
-        <file>qtquickcontrols2.conf</file>
         <file>images/bluetooth_off.png</file>
         <file>images/bluetooth_on.png</file>
         <file>images/back.png</file>
@@ -12,5 +10,17 @@
         <file>images/menu.png</file>
         <file>AppSettings.qml</file>
         <file>images/search.png</file>
+        <file>DrawerMenuItem.qml</file>
+        <file>images/Drawer/home@4x.png</file>
+        <file>images/Drawer/baseline_article_white@4x.png</file>
+        <file>images/Drawer/baseline_home_white@4x.png</file>
+        <file>images/Drawer/baseline_settings_white@4x.png</file>
+        <file>images/Drawer/baseline_article_black@4x.png</file>
+        <file>images/Drawer/baseline_settings_black@4x.png</file>
+        <file>images/wake_logo.gif</file>
+        <file>images/wake.png</file>
+        <file>FAQ.qml</file>
+        <file>images/Drawer/helpBlack@4x.png</file>
+        <file>images/Drawer/helpWhite@4x.png</file>
     </qresource>
 </RCC>

@@ -3,8 +3,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Window 2.15
 
 Page {
-    width: Qt.platform.os === "windows" ? 360 : Screen.desktopAvailableWidth
-    height: Qt.platform.os === "windows" ? 560 : Screen.desktopAvailableHeight - toolBar.height
+    title: "Logs.qml"
 
     Label {
         text: logsListModel.count > 0 ? "" : "Logs will be here"
@@ -29,7 +28,7 @@ Page {
             Text {
                 font.pointSize: Qt.platform.os === "windows" ? 10 : 13
                 text: modelData
-                color: "#d7d6d5"
+                color: isDarkTheme == true ? "#d7d6d5" : "#000000"
                 wrapMode: Text.Wrap
         }
         ScrollIndicator.vertical: ScrollIndicator { }

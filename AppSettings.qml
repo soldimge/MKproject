@@ -3,11 +3,10 @@ import QtQuick.Controls 2.15
 import Qt.labs.settings 1.0
 import QtQuick.Layouts 1.15
 import QtQuick.Window 2.15
+import QtQuick.Controls.Material 2.12
 
 Page {
-
-    width: Qt.platform.os === "windows" ? 360 : Screen.desktopAvailableWidth
-    height: Qt.platform.os === "windows" ? 560 : Screen.desktopAvailableHeight - toolBar.height
+    title: "AppSettings.qml"
 
     Settings {
         id: appSetSettings
@@ -38,18 +37,27 @@ Page {
         }
     }
 
+    Image {
+        id: image
+        anchors.top: gb1.bottom
+        anchors.left: gb1.left
+        anchors.right: gb1.right
+        fillMode: Image.PreserveAspectFit
+        source: isDarkTheme == true ? "qrc:/images/wake.png" : "qrc:/images/wake_logo.gif"
+        scale: 0.5
+    }
+
     GroupBox {
         id: gb2
-        anchors.top: gb1.bottom
-        anchors.topMargin: 50
+        anchors.top: image.bottom
         anchors.horizontalCenter: parent.horizontalCenter
         ColumnLayout {
-            Text {
+            Label {
                 id: timeoutSliderText
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: "Timeout:       " + timeoutSlider.value + " ms"
                 font.pointSize: Qt.platform.os === "windows" ? 12 : 16
-                color: "#d7d6d5"
+//                color: "#d7d6d5"
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignLeft
             }
@@ -69,12 +77,12 @@ Page {
                     backEnd.setTimeoutMS(timeoutSlider.value)
                 }
             }
-            Text {
+            Label {
                 id: pauseSliderText
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: "Pause:          " + pauseSlider.value + " ms"
                 font.pointSize: Qt.platform.os === "windows" ? 12 : 16
-                color: "#d7d6d5"
+//                color: "#d7d6d5"
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignLeft
             }
@@ -98,7 +106,6 @@ Page {
              id: button
              text: "RESET"
              flat: true
-             highlighted: true
              font.pointSize: Qt.platform.os === "windows" ? 12 : 16
              anchors.left: parent.left
              anchors.right: parent.right
@@ -107,12 +114,6 @@ Page {
                  pauseSlider.value = 20
                  timeoutSlider.value = 1000
              }
-             hoverEnabled: true
-
-//             ToolTip.delay: 1000
-//             ToolTip.timeout: 5000
-//             ToolTip.visible: hovered
-//             ToolTip.text: qsTr("Reset to default")
          }
     }
     }

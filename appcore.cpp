@@ -145,6 +145,32 @@ void AppCore::setTimeoutMS(quint32 timeoutMS)
     }
 }
 
+#ifdef Q_OS_ANDROID
+
+void AppCore::openSystemBluetoothSettings()
+{
+    const QAndroidJniObject ACTION_SETTINGS = QAndroidJniObject::getStaticObjectField("android/provider/Settings",
+                                                                                      "ACTION_BLUETOOTH_SETTINGS",
+                                                                                      "Ljava/lang/String;");
+    if (ACTION_SETTINGS.isValid()) {
+        const QAndroidIntent intent(ACTION_SETTINGS.toString());
+        QtAndroid::startActivity(intent.handle(), 10101);
+    }
+}
+
+void AppCore::openSystemLocationSettings()
+{
+    const QAndroidJniObject ACTION_SETTINGS = QAndroidJniObject::getStaticObjectField("android/provider/Settings",
+                                                                                      "ACTION_LOCATION_SOURCE_SETTINGS",
+                                                                                      "Ljava/lang/String;");
+    if (ACTION_SETTINGS.isValid()) {
+        const QAndroidIntent intent(ACTION_SETTINGS.toString());
+        QtAndroid::startActivity(intent.handle(), 10101);
+    }
+}
+
+#endif
+
 void AppCore::setAppSettings(bool ms)
 {
     _msInLogs = ms;   

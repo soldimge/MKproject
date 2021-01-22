@@ -63,4 +63,4 @@ DISTFILES += \
     android/res/values/libs.xml
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
-android: include(C:/Users/by01.user/AppData/Local/Android/Sdk/android_openssl/openssl.pri)
+#android: include(C:/Users/by01.user/AppData/Local/Android/Sdk/android_openssl/openssl.pri)

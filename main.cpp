@@ -14,16 +14,16 @@ int main(int argc, char *argv[])
 {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QGuiApplication app(argc, argv);
-
+    qputenv("QT_QUICK_CONTROLS_STYLE", "material");
 #ifdef Q_OS_ANDROID
     KeepAwake lock;
 #endif
     qmlRegisterType<StatusBar>("StatusBar", 0, 1, "StatusBar");
 //    QtAndroidTools::initializeQmlTools();
 
-    app.setOrganizationName("Laser");
+    app.setOrganizationName("Bluetooth Wake Terminal");
     app.setOrganizationDomain("soldimge@gmail.com");
-    app.setApplicationName("Laser Application");
+    app.setApplicationName("Bluetooth Wake Terminal");
 
     AppCore backEnd;
 

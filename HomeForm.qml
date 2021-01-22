@@ -5,6 +5,7 @@ import QtQuick.Window 2.15
 import QtQuick.Controls.Material 2.2
 
 Page {
+    title: "HomeForm.qml"
     property alias hpage: hpage
     property alias textInput: textInput
     property alias button: button
@@ -15,8 +16,6 @@ Page {
     property alias settings: settings
     property alias tumblerOutput: tumblerOutput
 
-    width: Qt.platform.os === "windows" ? 360 : Screen.desktopAvailableWidth
-    height: Qt.platform.os === "windows" ? 560 : Screen.desktopAvailableHeight - toolBar.height
     id: hpage
 
     Settings {
@@ -48,26 +47,26 @@ Page {
         anchors.topMargin: 10
     }
 
-    Text {
+    Label {
         id: cmdText
         anchors.left: frame.left
         anchors.right: tumbler.left
         anchors.verticalCenter: tumbler.verticalCenter
         font.pointSize: 16
         text: "DATA"
-        color: "#9cbdec"
+//        color: "#9cbdec"
         verticalAlignment: Text.AlignVCenter
         horizontalAlignment: Text.AlignHCenter
     }
 
-    Text {
+    Label {
         id: dataText
         anchors.left: parent.left
         anchors.leftMargin: 8
         anchors.verticalCenter: tumbler.verticalCenter
         font.pointSize: 16
         text: "CMD"
-        color: "#9cbdec"
+//        color: "#9cbdec"
         verticalAlignment: Text.AlignVCenter
         horizontalAlignment: Text.AlignHCenter
     }
@@ -173,7 +172,7 @@ Page {
             cmdInput.text = ""
         }
         hoverEnabled: true
-        Material.background: "#35415f"
+        Material.background: isDarkTheme == true ? "#35415f" : "#d7d6d5"
 //        Material.foreground: "#d7d6d5"
         ToolTip.delay: 1000
         ToolTip.timeout: 5000
@@ -199,14 +198,14 @@ Page {
         background: Rectangle
                 {
                     radius: 2
-                    color: "#11ffffff"
+                    color: isDarkTheme == true ? "#11ffffff" : "#d7d6d5"
                     border.width: 0
                 }
         delegate: ItemDelegate {
                     width: comboBox.width
                     contentItem: Text {
                         text: modelData
-                        color: "#d7d6d5"
+                        color: isDarkTheme == true ? "#d7d6d5" : "#000000"
                         font: comboBox.font
                         elide: Text.ElideRight
                         verticalAlignment: Text.AlignVCenter
@@ -218,7 +217,7 @@ Page {
 
                 contentItem: Text {
                     text: Qt.platform.os === "windows" ? comboBox.displayText : comboBox.displayText == "Choose device" ? comboBox.displayText : comboBox.displayText.substring(0, comboBox.displayText.indexOf("\t"))
-                    color: "#d7d6d5"
+                    color: isDarkTheme == true ? "#d7d6d5" : "#000000"
                     font.pointSize: Qt.platform.os === "windows" ? 14 : 16
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
@@ -260,7 +259,7 @@ Page {
         background: Rectangle
             {
                 radius: 2
-                color: "#11ffffff"
+                color: isDarkTheme == true ? "#11ffffff" : "#d7d6d5"
                 border.width: 0
             }
         currentIndex: settings.value("indxFromSettings", 0)
@@ -270,7 +269,7 @@ Page {
                             width: tumbler.width
                             contentItem: Text {
                             text: modelData
-                            color: "#d7d6d5"
+                            color: isDarkTheme == true ? "#d7d6d5" : "#000000"
                             font: tumbler.font
                             elide: Text.ElideRight
                             verticalAlignment: Text.AlignVCenter
@@ -281,7 +280,7 @@ Page {
         contentItem: Text {
             leftPadding: 20
             text: tumbler.displayText
-            color: "#d7d6d5"
+            color: isDarkTheme == true ? "#d7d6d5" : "#000000"
             font.pointSize: 16
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
@@ -301,7 +300,7 @@ Page {
         background: Rectangle
                 {
                     radius: 2
-                    color: "#11ffffff"
+                    color: isDarkTheme == true ? "#11ffffff" : "#d7d6d5"
                     border.width: 0
                 }
         currentIndex: settings.value("indxFromSettings2", 0)
@@ -311,7 +310,7 @@ Page {
                             width: tumblerOutput.width
                             contentItem: Text {
                                 text: modelData
-                                color: "#d7d6d5"
+                                color: isDarkTheme == true ? "#d7d6d5" : "#000000"
                                 font: tumblerOutput.font
                                 elide: Text.ElideRight
                                 verticalAlignment: Text.AlignVCenter
@@ -322,7 +321,7 @@ Page {
                         contentItem: Text {
                             leftPadding: 20
                             text: tumblerOutput.displayText
-                            color: "#d7d6d5"
+                            color: isDarkTheme == true ? "#d7d6d5" : "#000000"
                             font.pointSize: 16
                             verticalAlignment: Text.AlignVCenter
                             horizontalAlignment: Text.AlignHCenter
@@ -378,35 +377,24 @@ Page {
         height: tumbler.height
         text: "SEND"
         font.pointSize: 16
-//        enabled: outText.text === "Connected" ? true : false
         enabled: false
         onClicked:
         {
             backEnd.sendMessageToDevice(cmdInput.text, textInput.text, tumbler.currentIndex)
         }
-
-        hoverEnabled: true
-        ToolTip.delay: 1000
-        ToolTip.timeout: 5000
-        ToolTip.visible: hovered
-        ToolTip.text: qsTr("Send command to device")
-        Material.background: "#9cbdec"
+        Material.background: isDarkTheme == true ? "#9cbdec" : "#33cc33"
     }
 
     Button {
         id: button2
         text: "CLEAR"
         anchors.left: rectangle3.left
-//        anchors.leftMargin: 4
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 10
         highlighted: false
         anchors.top: tumblerOutput.top
-//        flat: true
-        Material.background: "#35415f"
-//        Material.foreground: "#d7d6d5"
+        Material.background: isDarkTheme == true ? "#35415f" : "#d7d6d5"
         font.pointSize: 16
-//        highlighted: true
         onClicked:
         {
             outTextModel.clear()
