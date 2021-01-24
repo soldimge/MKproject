@@ -6,11 +6,13 @@ import QtQuick.Window 2.15
 import QtQuick.Controls.Material 2.12
 
 Page {
+    id: settingsPage
     title: "Settings"
 
     Settings {
         id: appSetSettings
         property alias checkStateFromSettings: msCS.checkState
+        property alias useWakeFromSettings: useWake.checkState
         property alias pauseMsFromSettings: pauseSlider.value
         property alias timeoutMsFromSettings: timeoutSlider.value
     }
@@ -27,11 +29,22 @@ Page {
             {
                 id: msCS
                 text: qsTr("Show ms in logs")
-                checkState: appSetSettings.value("checkStateFromSettings", false)
+                checkState: appSetSettings.value("checkStateFromSettings", Qt.Unchecked)
                 onCheckStateChanged:
                 {
-                    backEnd.setAppSettings(msCS.checkState)
-                    ms = msCS.checkState
+                    backEnd.setAppSettings(msCS.checkState, useWake.checkState)
+//                    ms = msCS.checkState
+                }
+            }
+            CheckBox
+            {
+                id: useWake
+                text: qsTr("WAKE Serial Protocol")
+                checkState: appSetSettings.value("useWakeFromSettings", Qt.Checked)
+                onCheckStateChanged:
+                {
+                    backEnd.setAppSettings(msCS.checkState, useWake.checkState)
+                    isWakeOn = useWake.checkState
                 }
             }
         }
@@ -45,10 +58,12 @@ Page {
         fillMode: Image.PreserveAspectFit
         source: isDarkTheme == true ? "qrc:/images/wake.png" : "qrc:/images/wake_logo.gif"
         scale: 0.5
+        opacity: useWake.checkState ? 1 : 0.2
     }
 
     GroupBox {
         id: gb2
+        enabled: useWake.checkState
         anchors.top: image.bottom
         anchors.horizontalCenter: parent.horizontalCenter
         ColumnLayout {

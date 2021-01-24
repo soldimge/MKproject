@@ -33,6 +33,7 @@ Page {
         anchors.rightMargin: -4
         anchors.leftMargin: -4
         anchors.bottomMargin: -4
+        visible: isWakeOn
     }
 
     Frame {
@@ -66,9 +67,9 @@ Page {
         anchors.verticalCenter: tumbler.verticalCenter
         font.pointSize: 16
         text: "CMD"
-//        color: "#9cbdec"
         verticalAlignment: Text.AlignVCenter
         horizontalAlignment: Text.AlignHCenter
+        visible: isWakeOn
     }
 
     Rectangle {
@@ -86,11 +87,10 @@ Page {
     Rectangle {
         id: rectangle
         anchors.right: parent.right
-        anchors.left: rectangle3.right
+        anchors.left: isWakeOn ? rectangle3.right : parent.left
         anchors.rightMargin: 8
         anchors.leftMargin: 10
         anchors.top: tumbler.bottom
-//        anchors.topMargin: height*2
         height: parent.width/10
         color: "#d7d6d5"
         radius: 2
@@ -365,6 +365,7 @@ Page {
             wrapMode: Text.Wrap
             clip: true
         }
+        visible: isWakeOn
     }
 
     Button {

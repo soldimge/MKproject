@@ -61,10 +61,12 @@ AppCore::AppCore(QObject *parent) : QObject{parent},
 {
     _msInLogs = _settings.value("msInLogs", false).toBool();
     _cmdType = static_cast<CmdType>(_settings.value("cmdType", 0).toInt());
+    _isWakeOn = _settings.value("isWakeOn", true).toBool();
     _pauseMS = _settings.value("pauseMS", PAUSE_MS).toInt();
     _timeoutMS = _settings.value("timeoutMS", TIMEOUT_MS).toInt();
-    qDebug() << _timeoutMS;
-    qDebug() << _pauseMS;
+//    qDebug() << _timeoutMS;
+//    qDebug() << _pauseMS;
+    qDebug() << "_isWakeOn ==" << _isWakeOn;
 
     _discoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
 //    _discoveryAgent->setLowEnergyDiscoveryTimeout(60000);
@@ -107,6 +109,7 @@ AppCore::~AppCore()
     _settings.setValue("msInLogs", _msInLogs);
     _settings.setValue("cmdType", static_cast<qint16>(_cmdType));
     _settings.setValue("pauseMS", _pauseMS);
+    _settings.setValue("isWakeOn", _isWakeOn);
     _settings.setValue("timeoutMS", _timeoutMS);
     _settings.sync();
 
@@ -171,9 +174,11 @@ void AppCore::openSystemLocationSettings()
 
 #endif
 
-void AppCore::setAppSettings(bool ms)
+void AppCore::setAppSettings(bool ms, bool isWakeCondition)
 {
     _msInLogs = ms;   
+    _isWakeOn = isWakeCondition;
+    qDebug() << isWakeCondition;
 }
 
 void AppCore::addToLogs(QString message)

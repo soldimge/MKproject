@@ -41,7 +41,7 @@ public:
     Q_INVOKABLE void btDisconnect();
     Q_INVOKABLE void sendMessageToDevice(QString, QString, qint16);
     Q_INVOKABLE void copyToBuffer(QString);
-    Q_INVOKABLE void setAppSettings(bool);
+    Q_INVOKABLE void setAppSettings(bool, bool);
     Q_INVOKABLE void setCmdType(qint16);
     Q_INVOKABLE void setPauseMS(quint16);
     Q_INVOKABLE void setTimeoutMS(quint32);
@@ -81,6 +81,7 @@ private:
     std::mutex _mtx;
     quint16 _pauseMS;
     quint32 _timeoutMS;
+    bool _isWakeOn;
 
 #ifdef Q_OS_ANDROID
     QBluetoothLocalDevice *_localDevice;

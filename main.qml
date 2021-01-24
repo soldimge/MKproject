@@ -11,28 +11,30 @@ ApplicationWindow {
     height: Qt.platform.os === "windows" ? 640 : Screen.desktopAvailableHeight
     visible: true
 
-    minimumWidth : width
-    minimumHeight : height
-    maximumHeight : height
-    maximumWidth : width
+//    minimumWidth : width
+//    minimumHeight : height
+//    maximumHeight : height
+//    maximumWidth : width
 
     Settings {
             id: mainSettings
             property alias isDarkThemeSettings: window.isDarkTheme
+            property alias isWakeOnSettings: window.isWakeOn
         }
 
     property string logString
-    property int ms
+//    property int ms
     property int tumblerIndx
     property int tumblerIndx2
     property bool btDevicesVisible
 
     property bool isDarkTheme: mainSettings.value("isDarkThemeSettings", true)
+    property bool isWakeOn: mainSettings.value("isWakeOn", true)
 
     Material.theme: Material.Light
 
     onIsDarkThemeChanged: {
-        console.log(isDarkTheme)
+//        console.log(isDarkTheme)
         if(isDarkTheme == true) {
             Material.background = "#273354"
             Material.foreground = "#d7d6d5"
