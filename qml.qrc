@@ -22,5 +22,6 @@
         <file>FAQ.qml</file>
         <file>images/Drawer/helpBlack@4x.png</file>
         <file>images/Drawer/helpWhite@4x.png</file>
+        <file>CmdButton.qml</file>
     </qresource>
 </RCC>

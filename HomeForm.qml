@@ -171,13 +171,13 @@ Page {
             textInput.text = ""
             cmdInput.text = ""
         }
-        hoverEnabled: true
+//        hoverEnabled: true
         Material.background: isDarkTheme == true ? "#35415f" : "#d7d6d5"
 //        Material.foreground: "#d7d6d5"
-        ToolTip.delay: 1000
-        ToolTip.timeout: 5000
-        ToolTip.visible: hovered
-        ToolTip.text: qsTr("Clear all fields")
+//        ToolTip.delay: 1000
+//        ToolTip.timeout: 5000
+//        ToolTip.visible: hovered
+//        ToolTip.text: qsTr("Clear all fields")
     }
 
     ComboBox {
@@ -185,7 +185,7 @@ Page {
 //        visible: true
         id: comboBox
         model: listModel
-        anchors.top: button.bottom
+        anchors.top: grid.bottom
         anchors.topMargin: -4
         height: rectangle.height * 1.4
         anchors.left: rectangle3.left
@@ -284,7 +284,7 @@ Page {
             font.pointSize: 16
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
-                        }
+            }
         }
 
     ComboBox {
@@ -399,6 +399,55 @@ Page {
         onClicked:
         {
             outTextModel.clear()
+        }
+    }
+
+    Grid {
+        id: grid
+        anchors.top: button.bottom
+        anchors.topMargin: -4
+        columns: 5
+        rowSpacing: -2
+        columnSpacing: 10
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.leftMargin: 8
+        anchors.rightMargin: 8
+
+        CmdButton {
+            text: "M1"
+        }
+        CmdButton {
+            text: "M2"
+        }
+        CmdButton {
+            text: "M3"
+        }
+        CmdButton {
+            text: "M4"
+        }
+        CmdButton {
+            text: "M5"
+        }
+        CmdButton {
+            visible: cmdButtons10
+            text: "M6"
+        }
+        CmdButton {
+            visible: cmdButtons10
+            text: "M7"
+        }
+        CmdButton {
+            visible: cmdButtons10
+            text: "M8"
+        }
+        CmdButton {
+            visible: cmdButtons10
+            text: "M9"
+        }
+        CmdButton {
+            visible: cmdButtons10
+            text: "M10"
         }
     }
 }

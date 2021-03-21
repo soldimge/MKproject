@@ -325,6 +325,7 @@ QByteArray AppCore::sendCommand(uint8_t cmd, QByteArray data, uint8_t addr)
                 addToLogs("Send message error: timeout");
                 emit sendToQml("Send message error: timeout");
                 _reqIsActive = false;
+                emit enableSendButton(true);
                 //error timeout
             }
         }

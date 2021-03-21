@@ -4,6 +4,7 @@ import QtQuick.Window 2.15
 import StatusBar 0.1
 import QtQuick.Controls.Material 2.12
 import Qt.labs.settings 1.0
+import QtQuick.Layouts 1.15
 
 ApplicationWindow {
     id: window
@@ -20,21 +21,21 @@ ApplicationWindow {
             id: mainSettings
             property alias isDarkThemeSettings: window.isDarkTheme
             property alias isWakeOnSettings: window.isWakeOn
+            property alias cmdButtons10Settings: window.cmdButtons10
         }
 
     property string logString
-//    property int ms
     property int tumblerIndx
     property int tumblerIndx2
     property bool btDevicesVisible
 
+    property bool cmdButtons10: mainSettings.value("cmdButtons10Settings", false)
     property bool isDarkTheme: mainSettings.value("isDarkThemeSettings", true)
     property bool isWakeOn: mainSettings.value("isWakeOn", true)
 
     Material.theme: Material.Light
 
     onIsDarkThemeChanged: {
-//        console.log(isDarkTheme)
         if(isDarkTheme == true) {
             Material.background = "#273354"
             Material.foreground = "#d7d6d5"

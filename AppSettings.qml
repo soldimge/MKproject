@@ -13,6 +13,7 @@ Page {
         id: appSetSettings
         property alias checkStateFromSettings: msCS.checkState
         property alias useWakeFromSettings: useWake.checkState
+        property alias use10FromSettings: use10.checkState
         property alias pauseMsFromSettings: pauseSlider.value
         property alias timeoutMsFromSettings: timeoutSlider.value
     }
@@ -34,6 +35,16 @@ Page {
                 {
                     backEnd.setAppSettings(msCS.checkState, useWake.checkState)
 //                    ms = msCS.checkState
+                }
+            }
+            CheckBox
+            {
+                id: use10
+                text: qsTr("10 command buttons")
+                checkState: appSetSettings.value("use10FromSettings", Qt.Unchecked)
+                onCheckStateChanged:
+                {
+                    cmdButtons10 = use10.checkState
                 }
             }
             CheckBox
